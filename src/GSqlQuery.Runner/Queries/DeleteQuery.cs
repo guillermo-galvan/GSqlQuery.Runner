@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 namespace GSqlQuery
 {
     public class DeleteQuery<T, TDbConnection> : DeleteQuery<T>, IExecute<int, TDbConnection>
-         where T : class, new()
+         where T : class
     {
         internal DeleteQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria, ConnectionOptions<TDbConnection> connectionOptions) :
-            base(text, columns, criteria, connectionOptions.Statements)
+            base(text, columns, criteria, connectionOptions.Formats)
         {
             DatabaseManagement = connectionOptions.DatabaseManagement;
         }

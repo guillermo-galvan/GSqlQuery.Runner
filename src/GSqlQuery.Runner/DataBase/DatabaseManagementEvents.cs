@@ -27,7 +27,7 @@ namespace GSqlQuery
         public virtual void WriteTrace(ILogger logger, string message, object[] param) => OnWriteTrace(IsTraceActive, logger, message, param);
 
         public virtual ITransformTo<T> GetTransformTo<T>(ClassOptions classOptions, IQuery<T> query, ILogger logger)
-           where T : class, new()
+           where T : class
         {
             if (query is JoinQuery<T> joinQuery)
             {

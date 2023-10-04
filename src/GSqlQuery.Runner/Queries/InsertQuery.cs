@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace GSqlQuery
 {
     public sealed class InsertQuery<T, TDbConnection> : InsertQuery<T>, IExecute<T, TDbConnection>, IQuery<T>
-        where T : class, new()
+        where T : class
     {
         public object Entity { get; }
 
@@ -18,7 +18,7 @@ namespace GSqlQuery
 
         internal InsertQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria,
             ConnectionOptions<TDbConnection> connectionOptions, object entity, PropertyOptions propertyOptionsAutoIncrementing)
-            : base(text, columns, criteria, connectionOptions.Statements, entity)
+            : base(text, columns, criteria, connectionOptions.Formats)
         {
             Entity = entity ?? throw new ArgumentNullException(nameof(entity));
             _propertyOptionsAutoIncrementing = propertyOptionsAutoIncrementing;

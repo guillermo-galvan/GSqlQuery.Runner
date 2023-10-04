@@ -12,7 +12,7 @@ namespace GSqlQuery.Runner.Test
 
         public IReadTest()
         {
-            _connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            _connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
         }
 
         [Fact]

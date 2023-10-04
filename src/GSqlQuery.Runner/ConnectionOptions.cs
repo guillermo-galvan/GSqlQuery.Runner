@@ -4,13 +4,13 @@ namespace GSqlQuery
 {
     public class ConnectionOptions<TDbConnection>
     {
-        public IStatements Statements { get; }
+        public IFormats Formats { get; }
 
         public IDatabaseManagement<TDbConnection> DatabaseManagement { get; }
 
-        public ConnectionOptions(IStatements statements, IDatabaseManagement<TDbConnection> databaseManagement)
+        public ConnectionOptions(IFormats formats, IDatabaseManagement<TDbConnection> databaseManagement)
         {
-            Statements = statements ?? throw new ArgumentNullException(nameof(statements));
+            Formats = formats ?? throw new ArgumentNullException(nameof(formats));
             DatabaseManagement = databaseManagement ?? throw new ArgumentNullException(nameof(databaseManagement));
         }
     }

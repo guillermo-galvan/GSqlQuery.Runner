@@ -95,7 +95,7 @@ namespace GSqlQuery.Runner
         }
 
         public IEnumerable<T> ExecuteReader<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
-            where T : class, new()
+            where T : class
         {
             using (IConnection connection = GetConnection())
             {
@@ -111,7 +111,7 @@ namespace GSqlQuery.Runner
         }
 
         public IEnumerable<T> ExecuteReader<T>(IConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
-            where T : class, new()
+            where T : class
         {
             Events.WriteTrace(_logger, "ExecuteReader Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
               new object[] { typeof(T).FullName, query.Text, parameters });
@@ -133,7 +133,7 @@ namespace GSqlQuery.Runner
             return result;
         }
 
-        public async Task<IEnumerable<T>> ExecuteReaderAsync<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class, new()
+        public async Task<IEnumerable<T>> ExecuteReaderAsync<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class
         {
             using (IConnection connection = await GetConnectionAsync(cancellationToken))
             {
@@ -148,7 +148,7 @@ namespace GSqlQuery.Runner
             }
         }
 
-        public async Task<IEnumerable<T>> ExecuteReaderAsync<T>(IConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class, new()
+        public async Task<IEnumerable<T>> ExecuteReaderAsync<T>(IConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class
         {
             cancellationToken.ThrowIfCancellationRequested();
             Events.WriteTrace(_logger, "ExecuteReaderAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}",

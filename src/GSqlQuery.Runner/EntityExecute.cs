@@ -9,7 +9,7 @@ using System.Reflection;
 namespace GSqlQuery
 {
     public abstract class EntityExecute<T> : Entity<T>, Runner.IRead<T>, Runner.ICreate<T>, Runner.IUpdate<T>, Runner.IDelete<T>
-        where T : class, new()
+        where T : class
     {
         public static IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>, TDbConnection>
            Select<TProperties, TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions, Expression<Func<T, TProperties>> expression)

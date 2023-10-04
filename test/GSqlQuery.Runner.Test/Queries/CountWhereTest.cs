@@ -18,7 +18,7 @@ namespace GSqlQuery.Runner.Test.Queries
         {
             _equal = new Equal<int>(new TableAttribute("Test1"), new ColumnAttribute("Id"), 1);
             _selectQueryBuilder = new SelectQueryBuilder<Test1, IDbConnection>(new List<string> { nameof(Test1.Id), nameof(Test1.Name), nameof(Test1.Create) },
-                new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()));
+                new ConnectionOptions<IDbConnection>(new TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()));
             _connectionCountQueryBuilder = new CountQueryBuilder<Test1, IDbConnection>(_selectQueryBuilder);
         }
 
@@ -48,7 +48,7 @@ namespace GSqlQuery.Runner.Test.Queries
                 new AndOrBase<Test1, CountQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_connectionCountQueryBuilder);
             Assert.NotNull(query);
             query.Add(_equal);
-            var criteria = query.BuildCriteria(new Statements());
+            var criteria = query.BuildCriteria(new TestFormats());
             Assert.NotNull(criteria);
             Assert.NotEmpty(criteria);
         }

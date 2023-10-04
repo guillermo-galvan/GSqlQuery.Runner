@@ -14,7 +14,7 @@ namespace GSqlQuery.Runner.Test.Queries
         private readonly ColumnAttribute _columnAttribute;
         private readonly TableAttribute _tableAttribute;
         private readonly Equal<int> _equal;
-        private readonly IStatements _statements;
+        private readonly IFormats _formats;
         private readonly ClassOptions _classOptions;
         private readonly ConnectionOptions<IDbConnection> _connectionOptions;
         private readonly ConnectionOptions<IDbConnection> _connectionOptionsAsync;
@@ -25,15 +25,15 @@ namespace GSqlQuery.Runner.Test.Queries
             _columnAttribute = _classOptions.PropertyOptions.First(x => x.ColumnAttribute.Name == nameof(Test1.Id)).ColumnAttribute;
             _tableAttribute = _classOptions.Table;
             _equal = new Equal<int>(_tableAttribute, _columnAttribute, 1);
-            _statements = new Statements();
-            _connectionOptions = new ConnectionOptions<IDbConnection>(_statements, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
-            _connectionOptionsAsync = new ConnectionOptions<IDbConnection>(_statements, LoadGSqlQueryOptions.GetDatabaseManagmentMockAsync());
+            _formats = new TestFormats();
+            _connectionOptions = new ConnectionOptions<IDbConnection>(_formats, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            _connectionOptionsAsync = new ConnectionOptions<IDbConnection>(_formats, LoadGSqlQueryOptions.GetDatabaseManagmentMockAsync());
         }
 
         [Fact]
         public void Properties_cannot_be_null2()
         {
-            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("query", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_statements, _classOptions.PropertyOptions) }, _connectionOptions);
+            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("query", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_formats, _classOptions.PropertyOptions) }, _connectionOptions);
 
             Assert.NotNull(query);
             Assert.NotNull(query.Text);
@@ -43,13 +43,13 @@ namespace GSqlQuery.Runner.Test.Queries
             Assert.NotNull(query.Criteria);
             Assert.NotEmpty(query.Criteria);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Statements);
+            Assert.NotNull(query.Formats);
         }
 
         [Fact]
         public void Should_execute_the_query()
         {
-            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_statements, _classOptions.PropertyOptions) }, _connectionOptions);
+            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_formats, _classOptions.PropertyOptions) }, _connectionOptions);
             var result = query.Execute();
             Assert.Equal(1, result);
         }
@@ -58,14 +58,14 @@ namespace GSqlQuery.Runner.Test.Queries
         [Fact]
         public void Throw_exception_if_DatabaseManagment_not_found()
         {
-            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_statements, _classOptions.PropertyOptions) }, _connectionOptions);
+            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_formats, _classOptions.PropertyOptions) }, _connectionOptions);
             Assert.Throws<ArgumentNullException>(() => query.Execute(null));
         }
 
         [Fact]
         public void Should_execute_the_query1()
         {
-            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_statements, _classOptions.PropertyOptions) }, _connectionOptions);
+            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_formats, _classOptions.PropertyOptions) }, _connectionOptions);
             var result = query.Execute(LoadGSqlQueryOptions.GetIDbConnection());
             Assert.Equal(1, result);
         }
@@ -73,7 +73,7 @@ namespace GSqlQuery.Runner.Test.Queries
         [Fact]
         public async Task Should_executeAsync_the_query()
         {
-            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_statements, _classOptions.PropertyOptions) }, _connectionOptionsAsync);
+            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_formats, _classOptions.PropertyOptions) }, _connectionOptionsAsync);
             var result = await query.ExecuteAsync(CancellationToken.None);
             Assert.Equal(1, result);
         }
@@ -82,14 +82,14 @@ namespace GSqlQuery.Runner.Test.Queries
         [Fact]
         public async Task Throw_exceptionAsync_if_DatabaseManagment_not_found()
         {
-            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_statements, _classOptions.PropertyOptions) }, _connectionOptionsAsync);
+            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_formats, _classOptions.PropertyOptions) }, _connectionOptionsAsync);
             await Assert.ThrowsAsync<ArgumentNullException>(async () => await query.ExecuteAsync(null, CancellationToken.None));
         }
 
         [Fact]
         public async Task Should_executeAsync_the_query1()
         {
-            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_statements, _classOptions.PropertyOptions) }, _connectionOptionsAsync);
+            CountQuery<Test1, IDbConnection> query = new CountQuery<Test1, IDbConnection>("SELECT COUNT([Test1].[Id]) FROM [Test1];", _classOptions.PropertyOptions, new CriteriaDetail[] { _equal.GetCriteria(_formats, _classOptions.PropertyOptions) }, _connectionOptionsAsync);
             var result = await query.ExecuteAsync(LoadGSqlQueryOptions.GetIDbConnection(), CancellationToken.None);
             Assert.Equal(1, result);
         }

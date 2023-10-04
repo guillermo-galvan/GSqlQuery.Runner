@@ -9,13 +9,13 @@ namespace GSqlQuery.Runner.Test.Queries
 {
     public class SelectQueryBuilderTest
     {
-        private readonly IStatements _stantements;
+        private readonly IFormats _formats;
         private readonly ConnectionOptions<IDbConnection> _connectionOptions;
 
         public SelectQueryBuilderTest()
         {
-            _stantements = new Statements();
-            _connectionOptions = new ConnectionOptions<IDbConnection>(_stantements, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            _formats = new TestFormats();
+            _connectionOptions = new ConnectionOptions<IDbConnection>(_formats, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace GSqlQuery.Runner.Test.Queries
 
             Assert.NotNull(queryBuilder);
             Assert.NotNull(queryBuilder.Options);
-            Assert.NotNull(queryBuilder.Options.Statements);
+            Assert.NotNull(queryBuilder.Options.Formats);
             Assert.NotNull(queryBuilder.Options.DatabaseManagement);
             Assert.NotNull(queryBuilder.Columns);
             Assert.NotEmpty(queryBuilder.Columns);
@@ -60,8 +60,8 @@ namespace GSqlQuery.Runner.Test.Queries
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Statements);
-            Assert.Null(query.Criteria);
+            Assert.NotNull(query.Formats);
+            Assert.NotNull(query.Criteria);
         }
     }
 }

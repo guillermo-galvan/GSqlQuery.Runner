@@ -12,7 +12,7 @@ namespace GSqlQuery.Runner.Test.DataBase
         [Fact]
         public void GetParameter()
         {
-            var query = EntityExecute<Test1>.Select(new Statements()).Build();
+            var query = EntityExecute<Test1>.Select(new TestFormats()).Build();
 
             Queue<ParameterDetail> parameters = new Queue<ParameterDetail>();
 
@@ -37,7 +37,7 @@ namespace GSqlQuery.Runner.Test.DataBase
         [Fact]
         public void OnGetParameter()
         {
-            var query = EntityExecute<Test1>.Select(new Statements()).Build();
+            var query = EntityExecute<Test1>.Select(new TestFormats()).Build();
 
             Queue<ParameterDetail> parameters = new Queue<ParameterDetail>();
             if (query.Criteria != null)
@@ -83,7 +83,7 @@ namespace GSqlQuery.Runner.Test.DataBase
         [Fact]
         public void GetTransformTo_join_query()
         {
-            JoinQuery<Join<Test1, Test3>> query = EntityExecute<Test1>.Select(new Statements()).InnerJoin<Test3>().Equal(x => x.Table1.Id, x => x.Table2.Ids).Build();
+            JoinQuery<Join<Test1, Test3>> query = EntityExecute<Test1>.Select(new TestFormats()).InnerJoin<Test3>().Equal(x => x.Table1.Id, x => x.Table2.Ids).Build();
             var loggerMock = new Mock<ILogger<DatabaseManagementEvents>>();
             var events = new DatabaseManagementEvents();
 
@@ -94,7 +94,7 @@ namespace GSqlQuery.Runner.Test.DataBase
         [Fact]
         public void TransformToByField_query()
         {
-            var query = EntityExecute<Test5>.Select(new Statements()).Build();
+            var query = EntityExecute<Test5>.Select(new TestFormats()).Build();
             var loggerMock = new Mock<ILogger<DatabaseManagementEvents>>();
             var events = new DatabaseManagementEvents();
 
@@ -105,7 +105,7 @@ namespace GSqlQuery.Runner.Test.DataBase
         [Fact]
         public void TransformToByConstructor_query()
         {
-            var query = EntityExecute<Test1>.Select(new Statements()).Build();
+            var query = EntityExecute<Test1>.Select(new TestFormats()).Build();
             var loggerMock = new Mock<ILogger<DatabaseManagementEvents>>();
             var events = new DatabaseManagementEvents();
 

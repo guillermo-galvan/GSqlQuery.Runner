@@ -9,29 +9,22 @@ namespace GSqlQuery.Runner.Transforms
     {
         public static object SwitchTypeValue(Type type, object value)
         {
-            try
+            if (value == DBNull.Value || value == null)
             {
-                if (value == DBNull.Value || value == null)
-                {
-                    return null;
-                }
-                else if (typeof(char[]) == type && value is string tmp)
-                {
-                    return tmp.ToCharArray();
-                }
-                else
-                {
-                    return Convert.ChangeType(value, type);
-                }
+                return null;
             }
-            catch (Exception)
+            else if (typeof(char[]) == type && value is string tmp)
             {
-                throw;
+                return tmp.ToCharArray();
+            }
+            else
+            {
+                return Convert.ChangeType(value, type);
             }
         }
     }
 
-    internal abstract class TransformTo<T> : ITransformTo<T> where T : class, new()
+    internal abstract class TransformTo<T> : ITransformTo<T> where T : class
     {
         protected readonly int _numColumns;
         protected readonly ClassOptions _classOptions;

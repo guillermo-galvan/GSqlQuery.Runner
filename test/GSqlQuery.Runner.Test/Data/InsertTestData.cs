@@ -10,12 +10,12 @@ namespace GSqlQuery.Runner.Test.Data
         {
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection> (new Statements(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"INSERT INTO Test3 (Test3.Name,Test3.Create,Test3.IsTests) VALUES (@Param,@Param,@Param); "
+                new ConnectionOptions<IDbConnection> (new DefaultFormats(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"INSERT INTO Test3 (Test3.Name,Test3.Create,Test3.IsTests) VALUES (@Param,@Param,@Param); "
             };
 
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection> (new Models.Statements(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"INSERT INTO [Test3] ([Test3].[Name],[Test3].[Create],[Test3].[IsTests]) VALUES (@Param,@Param,@Param); SELECT SCOPE_IDENTITY();"
+                new ConnectionOptions<IDbConnection> (new Models.TestFormats(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"INSERT INTO [Test3] ([Test3].[Name],[Test3].[Create],[Test3].[IsTests]) VALUES (@Param,@Param,@Param); SELECT SCOPE_IDENTITY();"
             };
         }
 
@@ -28,12 +28,12 @@ namespace GSqlQuery.Runner.Test.Data
         {
             yield return new object[]
             {
-                 new ConnectionOptions<IDbConnection> (new Statements(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"INSERT INTO TableName (TableName.Id,TableName.Name,TableName.Create,TableName.IsTests) VALUES (@Param,@Param,@Param,@Param);"
+                 new ConnectionOptions<IDbConnection> (new DefaultFormats(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"INSERT INTO TableName (TableName.Id,TableName.Name,TableName.Create,TableName.IsTests) VALUES (@Param,@Param,@Param,@Param);"
             };
 
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection> (new Models.Statements(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"INSERT INTO [TableName] ([TableName].[Id],[TableName].[Name],[TableName].[Create],[TableName].[IsTests]) VALUES (@Param,@Param,@Param,@Param);"
+                new ConnectionOptions<IDbConnection> (new Models.TestFormats(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"INSERT INTO [TableName] ([TableName].[Id],[TableName].[Name],[TableName].[Create],[TableName].[IsTests]) VALUES (@Param,@Param,@Param,@Param);"
             };
         }
 

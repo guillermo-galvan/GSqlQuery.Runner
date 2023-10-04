@@ -7,7 +7,7 @@ namespace GSqlQuery.Runner.Transforms
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class TransformToByField<T> : TransformTo<T> where T : class, new()
+    internal class TransformToByField<T> : TransformTo<T> where T : class
     {
         /// <summary>
         /// 

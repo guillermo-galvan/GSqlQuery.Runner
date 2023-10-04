@@ -12,18 +12,18 @@ namespace GSqlQuery.Runner.Test.Queries
         private readonly ColumnAttribute _columnAttribute;
         private readonly TableAttribute _tableAttribute;
         private readonly Equal<int> _equal;
-        private readonly IStatements _statements;
+        private readonly IFormats _formats;
         private readonly ClassOptions _classOptions;
         private readonly ConnectionOptions<IDbConnection> _connectionOptions;
 
         public BatchQueryTest()
         {
-            _statements = new Statements();
+            _formats = new TestFormats();
             _classOptions = ClassOptionsFactory.GetClassOptions(typeof(Test1));
             _columnAttribute = _classOptions.PropertyOptions.First(x => x.ColumnAttribute.Name == nameof(Test1.Id)).ColumnAttribute;
             _tableAttribute = _classOptions.Table;
             _equal = new Equal<int>(_tableAttribute, _columnAttribute, 1);
-            _connectionOptions = new ConnectionOptions<IDbConnection>(_statements, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            _connectionOptions = new ConnectionOptions<IDbConnection>(_formats, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace GSqlQuery.Runner.Test.Queries
 
             InsertQuery<Test6, IDbConnection> query = new InsertQuery<Test6, IDbConnection>("INSERT INTO [TableName] ([TableName].[Id],[TableName].[Name],[TableName].[Create],[TableName].[IsTests])",
                classOption.PropertyOptions,
-               new CriteriaDetail[] { _equal.GetCriteria(_statements, classOption.PropertyOptions) },
+               new CriteriaDetail[] { _equal.GetCriteria(_formats, classOption.PropertyOptions) },
                _connectionOptions, new Test6(1, null, DateTime.Now, true), classOption.PropertyOptions.FirstOrDefault(x => x.ColumnAttribute.IsAutoIncrementing));
 
             Assert.Throws<ArgumentNullException>(() => new BatchQuery(null, _classOptions.PropertyOptions, null));
