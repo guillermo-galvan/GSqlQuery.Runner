@@ -1,5 +1,4 @@
 ﻿using GSqlQuery.Runner.Transforms;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,23 +12,15 @@ namespace GSqlQuery.Runner
     public abstract class DatabaseManagement : IDatabaseManagement<IConnection>
     {
         protected readonly string _connectionString;
-        protected ILogger _logger;
 
         public DatabaseManagementEvents Events { get; set; }
 
         public string ConnectionString => _connectionString;
 
         public DatabaseManagement(string connectionString, DatabaseManagementEvents events)
-                : this(connectionString, events, null)
-        {
-
-        }
-
-        public DatabaseManagement(string connectionString, DatabaseManagementEvents events, ILogger logger)
         {
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
             Events = events ?? throw new ArgumentNullException(nameof(events));
-            _logger = logger;
         }
 
         internal DbCommand CreateCommand(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
@@ -60,7 +51,7 @@ namespace GSqlQuery.Runner
 
         public int ExecuteNonQuery(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
         {
-            Events.WriteTrace(_logger, "ExecuteNonQuery Query: {@Text} Parameters: {@parameters}",
+            Events.WriteTrace("ExecuteNonQuery Query: {@Text} Parameters: {@parameters}",
              new object[] { query.Text, parameters });
             using (var command = CreateCommand(connection, query, parameters))
             {
@@ -86,7 +77,7 @@ namespace GSqlQuery.Runner
         public Task<int> ExecuteNonQueryAsync(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            Events.WriteTrace(_logger, "ExecuteNonQueryAsync Query: {@Text} Parameters: {@parameters}",
+            Events.WriteTrace("ExecuteNonQueryAsync Query: {@Text} Parameters: {@parameters}",
              new object[] { query.Text, parameters });
             using (var command = CreateCommand(connection, query, parameters))
             {
@@ -113,9 +104,9 @@ namespace GSqlQuery.Runner
         public IEnumerable<T> ExecuteReader<T>(IConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
             where T : class
         {
-            Events.WriteTrace(_logger, "ExecuteReader Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
+            Events.WriteTrace("ExecuteReader Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
               new object[] { typeof(T).FullName, query.Text, parameters });
-            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)), query, _logger);
+            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)), query);
             Queue<T> result = new Queue<T>();
 
             using (var command = CreateCommand(connection, query, parameters))
@@ -151,9 +142,9 @@ namespace GSqlQuery.Runner
         public async Task<IEnumerable<T>> ExecuteReaderAsync<T>(IConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class
         {
             cancellationToken.ThrowIfCancellationRequested();
-            Events.WriteTrace(_logger, "ExecuteReaderAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
+            Events.WriteTrace("ExecuteReaderAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
                new object[] { typeof(T).FullName, query.Text, parameters });
-            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)), query, _logger);
+            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)), query);
             Queue<T> result = new Queue<T>();
 
             using (var command = CreateCommand(connection, query, parameters))
@@ -189,7 +180,7 @@ namespace GSqlQuery.Runner
 
         public T ExecuteScalar<T>(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
         {
-            Events.WriteTrace(_logger, "ExecuteScalar Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
+            Events.WriteTrace("ExecuteScalar Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
                 new object[] { typeof(T).FullName, query.Text, parameters });
             using (var command = CreateCommand(connection, query, parameters))
             {
@@ -216,7 +207,7 @@ namespace GSqlQuery.Runner
         public async Task<T> ExecuteScalarAsync<T>(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            Events.WriteTrace(_logger, "ExecuteScalarAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
+            Events.WriteTrace("ExecuteScalarAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
                 new object[] { typeof(T).FullName, query.Text, parameters });
             using (var command = CreateCommand(connection, query, parameters))
             {
