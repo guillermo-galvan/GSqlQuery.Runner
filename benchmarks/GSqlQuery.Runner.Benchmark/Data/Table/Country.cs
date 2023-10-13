@@ -6,22 +6,22 @@ namespace GSqlQuery.Runner.Benchmark.Data.Table
     public class Country : EntityExecute<Country>
     {
         [Column("country_id", Size = 5, IsPrimaryKey = true, IsAutoIncrementing = true)]
-        public long Country_id { get; set; }
+        public long CountryId { get; set; }
 
         [Column("country", Size = 50)]
         public string Name { get; set; }
 
         [Column("last_update", Size = 19)]
-        public DateTime Last_update { get; set; }
+        public DateTime LastUpdate { get; set; }
 
         public Country()
         { }
 
-        public Country(long country_id, string name, DateTime last_update)
+        public Country(long countryId, string name, DateTime lastUpdate)
         {
-            Country_id = country_id;
+            CountryId = countryId;
             Name = name;
-            Last_update = last_update;
+            LastUpdate = lastUpdate;
         }
     }
 }

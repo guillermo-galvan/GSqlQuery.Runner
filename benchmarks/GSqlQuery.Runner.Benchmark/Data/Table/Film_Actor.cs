@@ -6,22 +6,22 @@ namespace GSqlQuery.Runner.Benchmark.Data.Table
     public class Film_Actor : EntityExecute<Film_Actor>
     {
         [Column("actor_id", Size = 5, IsPrimaryKey = true)]
-        public long Actor_id { get; set; }
+        public long ActorId { get; set; }
 
         [Column("film_id", Size = 5, IsPrimaryKey = true)]
-        public long Film_id { get; set; }
+        public long FilmId { get; set; }
 
         [Column("last_update", Size = 19)]
-        public DateTime Last_update { get; set; }
+        public DateTime LastUpdate { get; set; }
 
         public Film_Actor()
         { }
 
-        public Film_Actor(long actor_id, long film_id, DateTime last_update)
+        public Film_Actor(long actorId, long filmId, DateTime lastUpdate)
         {
-            Actor_id = actor_id;
-            Film_id = film_id;
-            Last_update = last_update;
+            ActorId = actorId;
+            FilmId = filmId;
+            LastUpdate = lastUpdate;
         }
     }
 }

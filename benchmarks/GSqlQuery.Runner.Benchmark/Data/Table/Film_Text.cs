@@ -4,7 +4,7 @@ namespace GSqlQuery.Runner.Benchmark.Data.Table
     public class Film_Text : EntityExecute<Film_Text>
     {
         [Column("film_id", Size = 5, IsPrimaryKey = true)]
-        public long Film_id { get; set; }
+        public long FilmId { get; set; }
 
         [Column("title", Size = 255)]
         public string Title { get; set; }
@@ -15,9 +15,9 @@ namespace GSqlQuery.Runner.Benchmark.Data.Table
         public Film_Text()
         { }
 
-        public Film_Text(long film_id, string title, string description)
+        public Film_Text(long filmId, string title, string description)
         {
-            Film_id = film_id;
+            FilmId = filmId;
             Title = title;
             Description = description;
         }

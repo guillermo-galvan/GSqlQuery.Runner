@@ -6,38 +6,38 @@ namespace GSqlQuery.Runner.Benchmark.Data.Table
     public class Payment : EntityExecute<Payment>
     {
         [Column("payment_id", Size = 5, IsPrimaryKey = true, IsAutoIncrementing = true)]
-        public long Payment_id { get; set; }
+        public long PaymentId { get; set; }
 
         [Column("customer_id", Size = 5)]
-        public long Customer_id { get; set; }
+        public long CustomerId { get; set; }
 
         [Column("staff_id", Size = 3)]
-        public byte Staff_id { get; set; }
+        public byte StaffId { get; set; }
 
         [Column("rental_id", Size = 10)]
-        public int? Rental_id { get; set; }
+        public int? RentalId { get; set; }
 
         [Column("amount", Size = 5)]
         public decimal Amount { get; set; }
 
         [Column("payment_date", Size = 0)]
-        public DateTime Payment_date { get; set; }
+        public DateTime PaymentDate { get; set; }
 
         [Column("last_update", Size = 0)]
-        public DateTime? Last_update { get; set; }
+        public DateTime? LastUpdate { get; set; }
 
         public Payment()
         { }
 
-        public Payment(long payment_id, long customer_id, byte staff_id, int? rental_id, decimal amount, DateTime payment_date, DateTime? last_update)
+        public Payment(long paymentId, long customerId, byte staffId, int? rentalId, decimal amount, DateTime paymentDate, DateTime? lastUpdate)
         {
-            Payment_id = payment_id;
-            Customer_id = customer_id;
-            Staff_id = staff_id;
-            Rental_id = rental_id;
+            PaymentId = paymentId;
+            CustomerId = customerId;
+            StaffId = staffId;
+            RentalId = rentalId;
             Amount = amount;
-            Payment_date = payment_date;
-            Last_update = last_update;
+            PaymentDate = paymentDate;
+            LastUpdate = lastUpdate;
         }
     }
 }

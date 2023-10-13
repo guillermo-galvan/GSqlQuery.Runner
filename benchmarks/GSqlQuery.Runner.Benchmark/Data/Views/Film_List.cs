@@ -1,6 +1,4 @@
-using GSqlQuery;
-
-namespace Example.Entities.GSqlQuery.WithScheme.Views
+namespace GSqlQuery.Benchmark.Data.Table
 {
     [Table("sakila", "film_list")]
     public class Film_List : Entity<Film_List>

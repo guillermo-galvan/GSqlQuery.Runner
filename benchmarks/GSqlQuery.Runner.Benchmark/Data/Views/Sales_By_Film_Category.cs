@@ -1,6 +1,4 @@
-using GSqlQuery;
-
-namespace Example.Entities.GSqlQuery.WithScheme.Views
+namespace GSqlQuery.Benchmark.Data.Table
 {
     [Table("sakila", "sales_by_film_category")]
     public class Sales_By_Film_Category : Entity<Sales_By_Film_Category>
@@ -9,15 +7,15 @@ namespace Example.Entities.GSqlQuery.WithScheme.Views
         public string Category { get; set; }
 
         [Column("total_sales", Size = 27)]
-        public decimal? Total_sales { get; set; }
+        public decimal? TotalSales { get; set; }
 
         public Sales_By_Film_Category()
         { }
 
-        public Sales_By_Film_Category(string category, decimal? total_sales)
+        public Sales_By_Film_Category(string category, decimal? totalSales)
         {
             Category = category;
-            Total_sales = total_sales;
+            TotalSales = totalSales;
         }
     }
 }

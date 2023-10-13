@@ -6,16 +6,16 @@ namespace GSqlQuery.Runner.Benchmark.Data.Table
     public class Staff : EntityExecute<Staff>
     {
         [Column("staff_id", Size = 3, IsPrimaryKey = true, IsAutoIncrementing = true)]
-        public byte Staff_id { get; set; }
+        public byte StaffId { get; set; }
 
         [Column("first_name", Size = 45)]
-        public string First_name { get; set; }
+        public string FirstName { get; set; }
 
         [Column("last_name", Size = 45)]
-        public string Last_name { get; set; }
+        public string LastName { get; set; }
 
         [Column("address_id", Size = 5)]
-        public long Address_id { get; set; }
+        public long AddressId { get; set; }
 
         [Column("picture", Size = 65535)]
         public byte[] Picture { get; set; }
@@ -24,7 +24,7 @@ namespace GSqlQuery.Runner.Benchmark.Data.Table
         public string Email { get; set; }
 
         [Column("store_id", Size = 3)]
-        public byte Store_id { get; set; }
+        public byte StoreId { get; set; }
 
         [Column("active", Size = 3)]
         public byte Active { get; set; }
@@ -36,24 +36,24 @@ namespace GSqlQuery.Runner.Benchmark.Data.Table
         public string Password { get; set; }
 
         [Column("last_update", Size = 0)]
-        public DateTime Last_update { get; set; }
+        public DateTime LastUpdate { get; set; }
 
         public Staff()
         { }
 
-        public Staff(byte staff_id, string first_name, string last_name, long address_id, byte[] picture, string email, byte store_id, byte active, string username, string password, DateTime last_update)
+        public Staff(byte staffId, string firstName, string lastName, long addressId, byte[] picture, string email, byte storeId, byte active, string username, string password, DateTime lastUpdate)
         {
-            Staff_id = staff_id;
-            First_name = first_name;
-            Last_name = last_name;
-            Address_id = address_id;
+            StaffId = staffId;
+            FirstName = firstName;
+            LastName = lastName;
+            AddressId = addressId;
             Picture = picture;
             Email = email;
-            Store_id = store_id;
+            StoreId = storeId;
             Active = active;
             Username = username;
             Password = password;
-            Last_update = last_update;
+            LastUpdate = lastUpdate;
         }
     }
 }
