@@ -13,9 +13,14 @@
 		<EnablePackageValidation>true</EnablePackageValidation>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<PackageIcon>logo.png</PackageIcon>
   </PropertyGroup>
 
 	<ItemGroup>
+		<None Include="..\..\logo\logo.png">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
 		<None Include="..\..\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -23,7 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="GSqlQuery" Version="1.0.0-alpha" />
+		<PackageReference Include="GSqlQuery" Version="1.0.0-alpha1" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
 	</ItemGroup>
 

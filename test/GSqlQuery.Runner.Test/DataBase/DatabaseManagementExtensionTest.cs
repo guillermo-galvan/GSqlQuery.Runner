@@ -31,7 +31,7 @@ namespace GSqlQuery.Runner.Test.DataBase
                     return Enumerable.Empty<Join<Test1, Test3>>();
                 });
 
-            ConnectionOptions<IConnection> connectionOptions = new ConnectionOptions<IConnection>(new Statements(), mockIDatabaseManagement.Object);
+            ConnectionOptions<IConnection> connectionOptions = new ConnectionOptions<IConnection>(new TestFormats(), mockIDatabaseManagement.Object);
 
             var result = EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().NotEqual(x => x.Table2.Ids, x => x.Table1.Id).Build().ExecuteWithTransaction();
 
@@ -59,7 +59,7 @@ namespace GSqlQuery.Runner.Test.DataBase
                     return Enumerable.Empty<Join<Test1, Test3>>();
                 });
 
-            ConnectionOptions<IConnection> connectionOptions = new ConnectionOptions<IConnection>(new Statements(), mockIDatabaseManagement.Object);
+            ConnectionOptions<IConnection> connectionOptions = new ConnectionOptions<IConnection>(new TestFormats(), mockIDatabaseManagement.Object);
 
             using (var connection = connectionOptions.DatabaseManagement.GetConnection())
             {
@@ -92,7 +92,7 @@ namespace GSqlQuery.Runner.Test.DataBase
                     return Task.FromResult(Enumerable.Empty<Join<Test1, Test3>>());
                 });
 
-            ConnectionOptions<IConnection> connectionOptions = new ConnectionOptions<IConnection>(new Statements(), mockIDatabaseManagement.Object);
+            ConnectionOptions<IConnection> connectionOptions = new ConnectionOptions<IConnection>(new TestFormats(), mockIDatabaseManagement.Object);
 
             var result = await EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().NotEqual(x => x.Table2.Ids, x => x.Table1.Id).Build().ExecuteWithTransactionAsync();
 
@@ -120,7 +120,7 @@ namespace GSqlQuery.Runner.Test.DataBase
                     return Task.FromResult(Enumerable.Empty<Join<Test1, Test3>>());
                 });
 
-            ConnectionOptions<IConnection> connectionOptions = new ConnectionOptions<IConnection>(new Statements(), mockIDatabaseManagement.Object);
+            ConnectionOptions<IConnection> connectionOptions = new ConnectionOptions<IConnection>(new TestFormats(), mockIDatabaseManagement.Object);
 
             using (var connection = await connectionOptions.DatabaseManagement.GetConnectionAsync())
             {

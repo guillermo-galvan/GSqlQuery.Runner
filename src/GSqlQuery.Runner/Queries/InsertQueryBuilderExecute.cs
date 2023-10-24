@@ -6,9 +6,9 @@ namespace GSqlQuery.Runner.Queries
 {
     internal class InsertQueryBuilderExecute<T, TDbConnection> : InsertQueryBuilder<T, InsertQuery<T, TDbConnection>>,
         IQueryBuilder<InsertQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
-        where T : class, new()
+        where T : class
     {
-        public InsertQueryBuilderExecute(ConnectionOptions<TDbConnection> options, object entity) : base(options.Statements, entity)
+        public InsertQueryBuilderExecute(ConnectionOptions<TDbConnection> options, object entity) : base(options.Formats, entity)
         {
             Options = options;
         }
@@ -17,7 +17,7 @@ namespace GSqlQuery.Runner.Queries
 
         public override InsertQuery<T, TDbConnection> Build()
         {
-            var query = CreateQuery(Options.Statements, out IEnumerable<CriteriaDetail> criteria);
+            var query = CreateQuery(out IEnumerable<CriteriaDetail> criteria);
             return new InsertQuery<T, TDbConnection>(query, Columns, criteria, Options, _entity, Columns.FirstOrDefault(x => x.ColumnAttribute.IsAutoIncrementing));
         }
     }

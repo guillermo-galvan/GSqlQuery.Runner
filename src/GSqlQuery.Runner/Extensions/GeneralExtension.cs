@@ -7,7 +7,7 @@ namespace GSqlQuery.Runner.Extensions
     public static class GeneralExtension
     {
         public static IEnumerable<IDataParameter> GetParameters<T, TDbConnection>(this IQuery query,
-            IDatabaseManagement<TDbConnection> databaseManagement) where T : class, new()
+            IDatabaseManagement<TDbConnection> databaseManagement) where T : class
         {
             List<ParameterDetail> parameters = new List<ParameterDetail>();
             if (query.Criteria != null)

@@ -9,10 +9,10 @@ namespace GSqlQuery.Runner.Test.Models
         [Fact]
         public void Properties_cannot_be_null()
         {
-            var connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            var connectionOptions = new ConnectionOptions<IDbConnection>(new TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
 
             Assert.NotNull(connectionOptions.DatabaseManagement);
-            Assert.NotNull(connectionOptions.Statements);
+            Assert.NotNull(connectionOptions.Formats);
         }
 
         [Fact]
@@ -20,7 +20,7 @@ namespace GSqlQuery.Runner.Test.Models
         {
             IDatabaseManagement<IDbConnection> databaseManagement = null;
             Assert.Throws<ArgumentNullException>(() => new ConnectionOptions<IDbConnection>(null, LoadGSqlQueryOptions.GetDatabaseManagmentMock()));
-            Assert.Throws<ArgumentNullException>(() => new ConnectionOptions<IDbConnection>(new Statements(), databaseManagement));
+            Assert.Throws<ArgumentNullException>(() => new ConnectionOptions<IDbConnection>(new TestFormats(), databaseManagement));
         }
     }
 }

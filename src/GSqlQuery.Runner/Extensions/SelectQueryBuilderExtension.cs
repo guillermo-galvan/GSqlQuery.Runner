@@ -13,7 +13,7 @@ namespace GSqlQuery
     {
         public static IQueryBuilderWithWhere<T, CountQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
             Count<T, TDbConnection>(this IQueryBuilderWithWhere<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder)
-            where T : class, new()
+            where T : class
         {
             queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
             return new CountQueryBuilder<T, TDbConnection>(queryBuilder);
@@ -21,7 +21,7 @@ namespace GSqlQuery
 
         public static IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> OrderBy<T, TProperties, TDbConnection>
            (this IQueryBuilderWithWhere<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
-           where T : class, new()
+           where T : class
         {
             queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
@@ -31,18 +31,18 @@ namespace GSqlQuery
 
         public static IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> OrderBy<T, TProperties, TDbConnection>
             (this IAndOr<T, SelectQuery<T, TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
-            where T : class, new()
+            where T : class
         {
             queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
             options.MemberInfo.ValidateMemberInfos($"Could not infer property name for expression.");
             var tmp = queryBuilder.Build();
-            return new OrderByQueryBuilder<T, TDbConnection>(options.MemberInfo.Select(x => x.Name), orderBy, queryBuilder, new ConnectionOptions<TDbConnection>(tmp.Statements, tmp.DatabaseManagement));
+            return new OrderByQueryBuilder<T, TDbConnection>(options.MemberInfo.Select(x => x.Name), orderBy, queryBuilder, new ConnectionOptions<TDbConnection>(tmp.Formats, tmp.DatabaseManagement));
         }
 
         public static IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> OrderBy<T, TProperties, TDbConnection>
             (this IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
-            where T : class, new()
+            where T : class
         {
             queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
@@ -62,7 +62,7 @@ namespace GSqlQuery
 
         public static IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> OrderBy<T, TProperties, TDbConnection>
             (this IQueryBuilderWithWhere<T, JoinQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
-            where T : class, new()
+            where T : class
         {
             queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
@@ -72,13 +72,13 @@ namespace GSqlQuery
 
         public static IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> OrderBy<T, TProperties, TDbConnection>
             (this IAndOr<T, JoinQuery<T, TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
-            where T : class, new()
+            where T : class
         {
             queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
             options.MemberInfo.ValidateMemberInfos($"Could not infer property name for expression.");
             var tmp = queryBuilder.Build();
-            return new JoinOrderByQueryBuilder<T, TDbConnection>(options, orderBy, queryBuilder, new ConnectionOptions<TDbConnection>(tmp.Statements, tmp.DatabaseManagement));
+            return new JoinOrderByQueryBuilder<T, TDbConnection>(options, orderBy, queryBuilder, new ConnectionOptions<TDbConnection>(tmp.Formats, tmp.DatabaseManagement));
         }
     }
 }

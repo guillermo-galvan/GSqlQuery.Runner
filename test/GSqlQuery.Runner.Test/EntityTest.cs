@@ -26,7 +26,7 @@ namespace GSqlQuery.Runner.Test
         [Fact]
         public void Throw_exception_if_property_is_not_selected()
         {
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Models.Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
             Assert.Throws<InvalidOperationException>(() => Test3.Select(connectionOptions, x => x));
         }
 
@@ -262,7 +262,7 @@ namespace GSqlQuery.Runner.Test
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Statements);
+            Assert.NotNull(query.Formats);
             Assert.NotNull(query.Criteria);
             Assert.NotEmpty(query.Criteria);
 

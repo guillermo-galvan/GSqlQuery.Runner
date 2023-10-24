@@ -30,7 +30,7 @@ namespace GSqlQuery.Runner
         }
 
         public BatchExecute<TDbConnection> Add<T>(Func<ConnectionOptions<TDbConnection>, IQuery<T>> expression)
-            where T : class, new()
+            where T : class
         {
             IQuery query = expression.Invoke(_connectionOptions);
             foreach (var item in query.GetParameters<T, TDbConnection>(_connectionOptions.DatabaseManagement))

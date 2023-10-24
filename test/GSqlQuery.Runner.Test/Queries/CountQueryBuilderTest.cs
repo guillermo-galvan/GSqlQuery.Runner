@@ -12,13 +12,13 @@ namespace GSqlQuery.Runner.Test.Queries
 {
     public class CountQueryBuilderTest
     {
-        private readonly IStatements _stantements;
+        private readonly IFormats _formats;
         private readonly ConnectionOptions<IDbConnection> _connectionOptions;
 
         public CountQueryBuilderTest()
         {
-            _stantements = new Statements();
-            _connectionOptions = new ConnectionOptions<IDbConnection>(_stantements, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            _formats = new DefaultFormats();
+            _connectionOptions = new ConnectionOptions<IDbConnection>(_formats, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
         }
 
         [Fact]
@@ -31,9 +31,9 @@ namespace GSqlQuery.Runner.Test.Queries
             Assert.NotEmpty(query.Text);
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
-            Assert.NotNull(query.Statements);
+            Assert.NotNull(query.Formats);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.Null(query.Criteria);
+            Assert.NotNull(query.Criteria);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace GSqlQuery.Runner.Test.Queries
 
             Assert.NotNull(result);
             Assert.NotNull(result.Options);
-            Assert.NotNull(result.Options.Statements);
+            Assert.NotNull(result.Options.Formats);
             Assert.NotNull(result.Options.DatabaseManagement);
             Assert.NotNull(result.Columns);
             Assert.NotEmpty(result.Columns);

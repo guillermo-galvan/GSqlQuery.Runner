@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 namespace GSqlQuery
 {
     public class OrderByQuery<T, TDbConnection> : OrderByQuery<T>, IExecute<IEnumerable<T>, TDbConnection>
-        where T : class, new()
+        where T : class
     {
         public IDatabaseManagement<TDbConnection> DatabaseManagement { get; }
 
         internal OrderByQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria, ConnectionOptions<TDbConnection> connectionOptions) :
-            base(text, columns, criteria, connectionOptions.Statements)
+            base(text, columns, criteria, connectionOptions.Formats)
         {
             DatabaseManagement = connectionOptions.DatabaseManagement;
         }

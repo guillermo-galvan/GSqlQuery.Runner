@@ -7,7 +7,7 @@ using GSqlQuery.Extensions;
 
 namespace GSqlQuery.Runner.Transforms
 {
-    internal class JoinTransformTo<T> : TransformTo<T> where T : class, new()
+    internal class JoinTransformTo<T> : TransformTo<T> where T : class
     {
         private class JoinClassOptions
         {
@@ -102,7 +102,7 @@ namespace GSqlQuery.Runner.Transforms
                         new PropertyOptionsInEntity(pro,
                         Nullable.GetUnderlyingType(pro.PropertyInfo.PropertyType) ?? pro.PropertyInfo.PropertyType,
                         pro.PropertyInfo.PropertyType.IsValueType ? Activator.CreateInstance(pro.PropertyInfo.PropertyType) : null,
-                        left != null ? (int?)reader.GetOrdinal(ColumnAttributeExtension.GetAliasJoin(classOptions.Type.Name, pro.ColumnAttribute.Name)) : null))
+                        left != null ? (int?)reader.GetOrdinal($"{classOptions.Type.Name}_{pro.ColumnAttribute.Name}") : null))
                         .ToArray();
         }
     }

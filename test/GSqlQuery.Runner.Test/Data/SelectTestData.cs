@@ -10,12 +10,12 @@ namespace GSqlQuery.Runner.Test.Data
         {
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test1.Id,Test1.Name,Test1.Create,Test1.IsTest FROM Test1;"
+                new ConnectionOptions<IDbConnection>(new DefaultFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test1.Id,Test1.Name,Test1.Create,Test1.IsTest FROM Test1;"
             };
 
             yield return new object[]
             {
-               new ConnectionOptions<IDbConnection>(new Models.Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test1].[Id],[Test1].[Name],[Test1].[Create],[Test1].[IsTest] FROM [Test1];"
+               new ConnectionOptions<IDbConnection>(new Models.TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test1].[Id],[Test1].[Name],[Test1].[Create],[Test1].[IsTest] FROM [Test1];"
             };
         }
 
@@ -28,12 +28,12 @@ namespace GSqlQuery.Runner.Test.Data
         {
             yield return new object[]
             {
-               new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test1.Id,Test1.Name,Test1.Create FROM Test1;"
+               new ConnectionOptions<IDbConnection>(new DefaultFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test1.Id,Test1.Name,Test1.Create FROM Test1;"
             };
 
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection>(new Models.Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test1].[Id],[Test1].[Name],[Test1].[Create] FROM [Test1];"
+                new ConnectionOptions<IDbConnection>(new Models.TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test1].[Id],[Test1].[Name],[Test1].[Create] FROM [Test1];"
             };
         }
 
@@ -46,12 +46,12 @@ namespace GSqlQuery.Runner.Test.Data
         {
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test3.Id,Test3.Name,Test3.Create,Test3.IsTests FROM Test3;"
+                new ConnectionOptions<IDbConnection>(new DefaultFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test3.Id,Test3.Name,Test3.Create,Test3.IsTests FROM Test3;"
             };
 
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection>(new Models.Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test3].[Id],[Test3].[Name],[Test3].[Create],[Test3].[IsTests] FROM [Test3];"
+                new ConnectionOptions<IDbConnection>(new Models.TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test3].[Id],[Test3].[Name],[Test3].[Create],[Test3].[IsTests] FROM [Test3];"
             };
         }
 
@@ -64,12 +64,12 @@ namespace GSqlQuery.Runner.Test.Data
         {
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Scheme.TableName.Id,Scheme.TableName.Name,Scheme.TableName.Create,Scheme.TableName.IsTests FROM Scheme.TableName;"
+                new ConnectionOptions<IDbConnection>(new DefaultFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Scheme.TableName.Id,Scheme.TableName.Name,Scheme.TableName.Create,Scheme.TableName.IsTests FROM Scheme.TableName;"
             };
 
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection>(new Models.Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Scheme].[TableName].[Id],[Scheme].[TableName].[Name],[Scheme].[TableName].[Create],[Scheme].[TableName].[IsTests] FROM [Scheme].[TableName];"
+                new ConnectionOptions<IDbConnection>(new Models.TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Scheme].[TableName].[Id],[Scheme].[TableName].[Name],[Scheme].[TableName].[Create],[Scheme].[TableName].[IsTests] FROM [Scheme].[TableName];"
             };
         }
 
@@ -82,12 +82,12 @@ namespace GSqlQuery.Runner.Test.Data
         {
             yield return new object[]
             {
-               new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test3.Id,Test3.Name,Test3.Create FROM Test3;"
+               new ConnectionOptions<IDbConnection>(new DefaultFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test3.Id,Test3.Name,Test3.Create FROM Test3;"
             };
 
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection>(new Models.Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test3].[Id],[Test3].[Name],[Test3].[Create] FROM [Test3];"
+                new ConnectionOptions<IDbConnection>(new Models.TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test3].[Id],[Test3].[Name],[Test3].[Create] FROM [Test3];"
             };
         }
 
@@ -100,12 +100,12 @@ namespace GSqlQuery.Runner.Test.Data
         {
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test3.Id,Test3.Name,Test3.Create FROM Test3 WHERE Test3.IsTests = @Param AND Test3.Id = @Param;"
+                new ConnectionOptions<IDbConnection>(new DefaultFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT Test3.Id,Test3.Name,Test3.Create FROM Test3 WHERE Test3.IsTests = @Param AND Test3.Id = @Param;"
             };
 
             yield return new object[]
             {
-                new ConnectionOptions<IDbConnection>(new Models.Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test3].[Id],[Test3].[Name],[Test3].[Create] FROM [Test3] WHERE [Test3].[IsTests] = @Param AND [Test3].[Id] = @Param;"
+                new ConnectionOptions<IDbConnection>(new Models.TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"SELECT [Test3].[Id],[Test3].[Name],[Test3].[Create] FROM [Test3] WHERE [Test3].[IsTests] = @Param AND [Test3].[Id] = @Param;"
             };
         }
 

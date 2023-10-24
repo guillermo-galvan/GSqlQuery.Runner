@@ -8,25 +8,25 @@ namespace GSqlQuery.Runner.Queries
     internal class UpdateQueryBuilder<T, TDbConnection> : GSqlQuery.Queries.UpdateQueryBuilder<T, UpdateQuery<T, TDbConnection>>,
         IQueryBuilder<UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>,
         ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
-        where T : class, new()
+        where T : class
     {
         new public ConnectionOptions<TDbConnection> Options { get; }
 
         public UpdateQueryBuilder(ConnectionOptions<TDbConnection> connectionOptions, IEnumerable<string> selectMember, object value) :
-             base(connectionOptions.Statements, selectMember, value)
+             base(connectionOptions.Formats, selectMember, value)
         {
             Options = connectionOptions;
         }
 
         public UpdateQueryBuilder(ConnectionOptions<TDbConnection> connectionOptions, object entity, IEnumerable<string> selectMember) :
-            base(connectionOptions.Statements, entity, selectMember)
+            base(connectionOptions.Formats, entity, selectMember)
         {
             Options = connectionOptions;
         }
 
         public override UpdateQuery<T, TDbConnection> Build()
         {
-            return new UpdateQuery<T, TDbConnection>(CreateQuery(Options.Statements), Columns, _criteria, Options);
+            return new UpdateQuery<T, TDbConnection>(CreateQuery(), Columns, _criteria, Options);
         }
 
         public ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Set<TProperties>(Expression<Func<T, TProperties>> expression, TProperties value)

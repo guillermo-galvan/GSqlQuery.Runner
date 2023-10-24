@@ -21,7 +21,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().NotEqual(x => x.Table2.Ids, x => x.Table1.Id).Build();
             var result = query.Execute();
@@ -44,7 +44,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().GreaterThan(x => x.Table2.Ids, x => x.Table1.Id).Build();
             var result = query.Execute();
@@ -67,7 +67,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().LessThan(x => x.Table2.Ids, x => x.Table1.Id).Build();
             var result = query.Execute();
@@ -90,7 +90,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().GreaterThanOrEqual(x => x.Table2.Ids, x => x.Table1.Id).Build();
             var result = query.Execute();
@@ -113,7 +113,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().LessThanOrEqual(x => x.Table2.Ids, x => x.Table1.Id).Build();
             var result = query.Execute();
@@ -136,7 +136,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3, Test6>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions)
                                             .LeftJoin<Test3>().NotEqual(x => x.Table2.Ids, x => x.Table1.Id)
@@ -161,7 +161,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3, Test6>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions)
                                             .LeftJoin<Test3>().GreaterThan(x => x.Table2.Ids, x => x.Table1.Id)
@@ -186,7 +186,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3, Test6>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions)
                                             .LeftJoin<Test3>().LessThan(x => x.Table2.Ids, x => x.Table1.Id)
@@ -211,7 +211,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3, Test6>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions)
                                             .LeftJoin<Test3>().GreaterThanOrEqual(x => x.Table2.Ids, x => x.Table1.Id)
@@ -236,7 +236,7 @@ namespace GSqlQuery.Runner.Test.Extensions
                 {
                     return Enumerable.Empty<Join<Test1, Test3, Test6>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
 
             var query = EntityExecute<Test1>.Select(connectionOptions)
                                             .LeftJoin<Test3>().LessThanOrEqual(x => x.Table2.Ids, x => x.Table1.Id)

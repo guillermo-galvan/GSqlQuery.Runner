@@ -19,7 +19,7 @@ namespace GSqlQuery.Runner.Test.Queries
             _equal = new Equal<int>(new TableAttribute("Test1"), new ColumnAttribute("Id"), 1);
             var columnsValue = new List<string> { nameof(Test1.Id), nameof(Test1.Name), nameof(Test1.Create) };
             _updateQueryBuilder =
-                new UpdateQueryBuilder<Test1, IDbConnection>(new ConnectionOptions<IDbConnection>(new Statements(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()), columnsValue, string.Empty);
+                new UpdateQueryBuilder<Test1, IDbConnection>(new ConnectionOptions<IDbConnection>(new TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()), columnsValue, string.Empty);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace GSqlQuery.Runner.Test.Queries
             Assert.NotNull(query);
             query.Add(_equal);
 
-            var criteria = query.BuildCriteria(new Statements());
+            var criteria = query.BuildCriteria(new TestFormats());
             Assert.NotNull(criteria);
             Assert.NotEmpty(criteria);
         }

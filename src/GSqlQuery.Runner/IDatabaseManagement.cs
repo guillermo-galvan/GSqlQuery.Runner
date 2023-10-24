@@ -17,7 +17,7 @@ namespace GSqlQuery
         TDbConnection GetConnection();
 
         IEnumerable<T> ExecuteReader<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
-            where T : class, new();
+            where T : class;
 
         /// <summary>
         /// 
@@ -28,7 +28,7 @@ namespace GSqlQuery
         /// <param name="parameters"></param>
         /// <returns></returns>
         IEnumerable<T> ExecuteReader<T>(TDbConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
-            where T : class, new();
+            where T : class;
 
         int ExecuteNonQuery(IQuery query, IEnumerable<IDataParameter> parameters);
 
@@ -58,7 +58,7 @@ namespace GSqlQuery
 
         Task<IEnumerable<T>> ExecuteReaderAsync<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters,
             CancellationToken cancellationToken = default) 
-            where T : class, new();
+            where T : class;
 
         /// <summary>
         /// 
@@ -70,7 +70,7 @@ namespace GSqlQuery
         /// <returns></returns>
         Task<IEnumerable<T>> ExecuteReaderAsync<T>(TDbConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions,
             IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) 
-            where T : class, new();
+            where T : class;
 
         Task<int> ExecuteNonQueryAsync(IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default);
 

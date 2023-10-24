@@ -23,7 +23,7 @@ namespace GSqlQuery.Runner.Test.Queries
                 {
                     return Enumerable.Empty<Join<Test1, Test3>>();
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new TestFormats(), mock.Object);
 
             var result = EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().NotEqual(x => x.Table2.Ids, x => x.Table1.Id).Build().Execute();
 
@@ -41,7 +41,7 @@ namespace GSqlQuery.Runner.Test.Queries
             mock.Setup(x => x.ExecuteReader(It.IsAny<IDbConnection>(),It.IsAny<IQuery<Join<Test1, Test3>>>(), It.IsAny<IEnumerable<PropertyOptions>>(), It.IsAny<IEnumerable<IDataParameter>>()))
                 .Returns(Enumerable.Empty<Join<Test1, Test3>>);
 
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new TestFormats(), mock.Object);
 
             using var connection = connectionOptions.DatabaseManagement.GetConnection();
 
@@ -63,7 +63,7 @@ namespace GSqlQuery.Runner.Test.Queries
                 {
                     return Task.FromResult(Enumerable.Empty<Join<Test1, Test3>>());
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new TestFormats(), mock.Object);
 
             var result = await EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().NotEqual(x => x.Table2.Ids, x => x.Table1.Id).Build().ExecuteAsync();
 
@@ -83,7 +83,7 @@ namespace GSqlQuery.Runner.Test.Queries
                 {
                     return Task.FromResult(Enumerable.Empty<Join<Test1, Test3>>());
                 });
-            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new Statements(), mock.Object);
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new TestFormats(), mock.Object);
             using var connection = connectionOptions.DatabaseManagement.GetConnection();
 
             var result = await EntityExecute<Test1>.Select(connectionOptions).LeftJoin<Test3>().NotEqual(x => x.Table2.Ids, x => x.Table1.Id).Build().ExecuteAsync(connection);

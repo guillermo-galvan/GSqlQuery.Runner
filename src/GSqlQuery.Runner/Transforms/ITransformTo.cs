@@ -7,7 +7,7 @@ namespace GSqlQuery.Runner
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ITransformTo<T> where T : class, new()
+    public interface ITransformTo<T> where T : class
     {
         /// <summary>
         /// 

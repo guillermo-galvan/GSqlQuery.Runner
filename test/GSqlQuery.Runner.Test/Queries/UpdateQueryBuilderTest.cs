@@ -10,14 +10,14 @@ namespace GSqlQuery.Runner.Test.Queries
     public class UpdateQueryBuilderTest
     {
         private readonly List<string> _columnsValue;
-        private readonly IStatements _statements;
+        private readonly IFormats _formats;
         private readonly ConnectionOptions<IDbConnection> _connectionOptions;
 
         public UpdateQueryBuilderTest()
         {
             _columnsValue = new List<string> { nameof(Test1.Id), nameof(Test1.Name), nameof(Test1.Create) };
-            _statements = new Statements();
-            _connectionOptions = new ConnectionOptions<IDbConnection>(_statements, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            _formats = new TestFormats();
+            _connectionOptions = new ConnectionOptions<IDbConnection>(_formats, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace GSqlQuery.Runner.Test.Queries
 
             Assert.NotNull(queryBuilder);
             Assert.NotNull(queryBuilder.Options);
-            Assert.NotNull(queryBuilder.Options.Statements);
+            Assert.NotNull(queryBuilder.Options.Formats);
             Assert.NotNull(queryBuilder.Options.DatabaseManagement);
             Assert.NotNull(queryBuilder.Columns);
             Assert.NotEmpty(queryBuilder.Columns);
@@ -53,7 +53,7 @@ namespace GSqlQuery.Runner.Test.Queries
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Statements);
+            Assert.NotNull(query.Formats);
             Assert.NotNull(query.Criteria);
             Assert.NotEmpty(query.Criteria);
         }
@@ -87,7 +87,7 @@ namespace GSqlQuery.Runner.Test.Queries
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Statements);
+            Assert.NotNull(query.Formats);
             Assert.NotNull(query.Criteria);
             Assert.NotEmpty(query.Criteria);
         }
@@ -104,7 +104,7 @@ namespace GSqlQuery.Runner.Test.Queries
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Statements);
+            Assert.NotNull(query.Formats);
             Assert.NotNull(query.Criteria);
             Assert.NotEmpty(query.Criteria);
         }

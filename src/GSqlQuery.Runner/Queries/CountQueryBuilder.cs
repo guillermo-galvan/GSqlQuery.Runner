@@ -6,19 +6,19 @@ namespace GSqlQuery.Runner.Queries
         GSqlQuery.Queries.CountQueryBuilder<T, CountQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>, SelectQuery<T, TDbConnection>>,
         IQueryBuilder<CountQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>,
         IQueryBuilderWithWhere<T, CountQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
-        where T : class, new()
+        where T : class
     {
         new public ConnectionOptions<TDbConnection> Options { get; }
 
         public CountQueryBuilder(IQueryBuilderWithWhere<SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder) :
-            base(queryBuilder, queryBuilder.Options.Statements)
+            base(queryBuilder, queryBuilder.Options.Formats)
         {
             Options = queryBuilder.Options;
         }
 
         public override CountQuery<T, TDbConnection> Build()
         {
-            var query = CreateQuery(Options.Statements);
+            var query = CreateQuery();
             return new CountQuery<T, TDbConnection>(query, Columns, _criteria, _queryBuilder.Options);
         }
 
