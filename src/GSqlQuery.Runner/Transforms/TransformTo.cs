@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace GSqlQuery.Runner.Transforms
 {
-    internal static class TransformTo 
+    public static class TransformTo 
     {
         public static object SwitchTypeValue(Type type, object value)
         {
@@ -24,7 +24,7 @@ namespace GSqlQuery.Runner.Transforms
         }
     }
 
-    internal abstract class TransformTo<T> : ITransformTo<T> where T : class
+    public abstract class TransformTo<T> : ITransformTo<T> where T : class
     {
         protected readonly int _numColumns;
         protected readonly ClassOptions _classOptions;

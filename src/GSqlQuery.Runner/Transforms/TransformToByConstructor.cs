@@ -26,7 +26,7 @@ namespace GSqlQuery.Runner.Transforms
 
             foreach (var item in columns)
             {
-                fields[item.Property.PositionConstructor] = item.Ordinal.HasValue ? TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value)) : item.ValueDefault;                
+                fields[item.Property.PositionConstructor] = item.Ordinal.HasValue ? TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value)) : item.DefaultValue;                
             }
 
             return (T)_classOptions.ConstructorInfo.Invoke(fields);

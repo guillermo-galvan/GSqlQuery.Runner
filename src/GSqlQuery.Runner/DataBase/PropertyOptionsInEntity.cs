@@ -8,15 +8,15 @@ namespace GSqlQuery.Runner
 
         public Type Type { get; }
 
-        public object ValueDefault { get; }
+        public object DefaultValue { get; }
 
         public int? Ordinal { get; }
 
-        public PropertyOptionsInEntity(PropertyOptions propertyOptions, Type type, object valueDefault, int? ordinal)
+        public PropertyOptionsInEntity(PropertyOptions propertyOptions, Type type, object defaultValue, int? ordinal)
         {
             Property = propertyOptions;
             Type = type;
-            ValueDefault = valueDefault;
+            DefaultValue = defaultValue;
             Ordinal = ordinal;
         }
     }

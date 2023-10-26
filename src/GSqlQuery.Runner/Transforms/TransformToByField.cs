@@ -26,7 +26,7 @@ namespace GSqlQuery.Runner.Transforms
 
             foreach (var item in columns)
             {
-                var value = item.Ordinal.HasValue ? TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value)) : item.ValueDefault;
+                var value = item.Ordinal.HasValue ? TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value)) : item.DefaultValue;
 
                 if (value != null)
                 {
