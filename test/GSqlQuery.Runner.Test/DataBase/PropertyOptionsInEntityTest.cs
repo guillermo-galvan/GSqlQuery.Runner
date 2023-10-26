@@ -15,7 +15,7 @@ namespace GSqlQuery.Runner.Test.DataBase
             Assert.NotNull(propertyOptionsInEntity.Property);
             Assert.NotNull(propertyOptionsInEntity.Type);
             Assert.NotNull(propertyOptionsInEntity.Ordinal);
-            Assert.Null(propertyOptionsInEntity.ValueDefault);
+            Assert.Null(propertyOptionsInEntity.DefaultValue);
         }
     }
 }
