@@ -26,11 +26,12 @@ namespace GSqlQuery.Runner.Transforms
 
         private readonly List<JoinClassOptions> _joinClassOptions;
         private readonly ITransformTo<T> _transformTo;
+        private readonly DatabaseManagementEvents _events;
 
-        public JoinTransformTo(int numColumns) : base(numColumns)
+        public JoinTransformTo(int numColumns, DatabaseManagementEvents events) : base(numColumns)
         {
             int position = 0;
-
+            _events = events;
             _joinClassOptions = _classOptions.PropertyOptions.Where(x => x.PropertyInfo.PropertyType.IsClass).Select(x => new JoinClassOptions() 
             {
                 PropertyOptions = x,
@@ -73,20 +74,10 @@ namespace GSqlQuery.Runner.Transforms
                 var tmpColumns = columnGroup.First(x => x.Key == item.ClassOptions.Table.Name);
                 item.PropertyOptionsInEntities = GetPropertiesJoin(item.ClassOptions, tmpColumns, reader);
                 result.AddRange(item.PropertyOptionsInEntities);
-                
-                Type constructor;
 
-                if (!item.ClassOptions.IsConstructorByParam)
-                {
-                    constructor = typeof(TransformToByField<>).MakeGenericType(item.ClassOptions.Type);
-                }
-                else
-                {
-                    constructor = typeof(TransformToByConstructor<>).MakeGenericType(item.ClassOptions.Type);
-                }
-
-               item.TransformTo = Activator.CreateInstance(constructor, item.PropertyOptionsInEntities.Count());
-               item.MethodInfo = item.TransformTo.GetType().GetMethod("Generate");
+                MethodInfo methodInfo = _events.GetType().GetMethod("GetTransformTo").MakeGenericMethod(item.ClassOptions.Type);
+                item.TransformTo = methodInfo?.Invoke(_events, new object[] { item.ClassOptions }); ;
+                item.MethodInfo = item.TransformTo.GetType().GetMethod("Generate");
             }
 
             return result;
