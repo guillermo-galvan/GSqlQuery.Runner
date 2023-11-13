@@ -71,7 +71,7 @@ namespace GSqlQuery.Runner
                     _transacctionDispose?.Invoke(this);
                     _transacctionDispose -= _connection.RemoveTransaction;
                     _transacctionDispose = null;
-                    _transaction.Dispose();
+                    _transaction?.Dispose();
 
                 }
                 _disposed = true;

@@ -21,12 +21,16 @@ namespace GSqlQuery
             }
         }
 
-        public virtual ITransformTo<T> GetTransformTo<T>(ClassOptions classOptions, IQuery<T> query)
+        public virtual ITransformTo<T> GetTransformTo<T>(ClassOptions classOptions)
            where T : class
         {
-            if (query is JoinQuery<T> joinQuery)
+            Type type = typeof(T);
+
+            if (type.IsGenericType &&
+                (typeof(Join<,>) == type.GetGenericTypeDefinition() || 
+                typeof(Join<,,>) == type.GetGenericTypeDefinition()))
             {
-                return new JoinTransformTo<T>(classOptions.PropertyOptions.Count());
+                return new JoinTransformTo<T>(classOptions.PropertyOptions.Count(), this);
             }
             else if (!classOptions.IsConstructorByParam)
             {

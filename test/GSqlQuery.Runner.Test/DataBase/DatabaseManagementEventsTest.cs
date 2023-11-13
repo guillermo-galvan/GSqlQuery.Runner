@@ -70,27 +70,23 @@ namespace GSqlQuery.Runner.Test.DataBase
             JoinQuery<Join<Test1, Test3>> query = EntityExecute<Test1>.Select(new TestFormats()).InnerJoin<Test3>().Equal(x => x.Table1.Id, x => x.Table2.Ids).Build();
             var events = new TestDatabaseManagmentEvents();
 
-            var result = events.GetTransformTo(ClassOptionsFactory.GetClassOptions(typeof(Join<Test1, Test3>)), query);
+            var result = events.GetTransformTo<Join<Test1,Test3>>(ClassOptionsFactory.GetClassOptions(typeof(Join<Test1, Test3>)));
             Assert.IsType<Transforms.JoinTransformTo<Join<Test1, Test3>>>(result);
         }
 
         [Fact]
         public void TransformToByField_query()
         {
-            var query = EntityExecute<Test5>.Select(new TestFormats()).Build();
             var events = new TestDatabaseManagmentEvents();
-
-            var result = events.GetTransformTo(ClassOptionsFactory.GetClassOptions(typeof(Test5)), query);
+            var result = events.GetTransformTo<Test5>(ClassOptionsFactory.GetClassOptions(typeof(Test5)));
             Assert.IsType<Transforms.TransformToByField<Test5>>(result);
         }
 
         [Fact]
         public void TransformToByConstructor_query()
         {
-            var query = EntityExecute<Test1>.Select(new TestFormats()).Build();
             var events = new TestDatabaseManagmentEvents();
-
-            var result = events.GetTransformTo(ClassOptionsFactory.GetClassOptions(typeof(Test1)), query);
+            var result = events.GetTransformTo<Test1>(ClassOptionsFactory.GetClassOptions(typeof(Test1)));
             Assert.IsType<Transforms.TransformToByConstructor<Test1>>(result);
         }
     }

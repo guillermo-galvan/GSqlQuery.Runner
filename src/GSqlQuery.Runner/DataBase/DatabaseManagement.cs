@@ -106,7 +106,7 @@ namespace GSqlQuery.Runner
         {
             Events.WriteTrace("ExecuteReader Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
               new object[] { typeof(T).FullName, query.Text, parameters });
-            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)), query);
+            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)));
             Queue<T> result = new Queue<T>();
 
             using (var command = CreateCommand(connection, query, parameters))
@@ -144,7 +144,7 @@ namespace GSqlQuery.Runner
             cancellationToken.ThrowIfCancellationRequested();
             Events.WriteTrace("ExecuteReaderAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
                new object[] { typeof(T).FullName, query.Text, parameters });
-            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)), query);
+            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)));
             Queue<T> result = new Queue<T>();
 
             using (var command = CreateCommand(connection, query, parameters))
