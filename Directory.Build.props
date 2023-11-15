@@ -1,9 +1,9 @@
 <Project>
   <PropertyGroup>
-	  <VersionPrefix>1.0.0-alpha4</VersionPrefix>
+	  <VersionPrefix>1.0.0-alpha5</VersionPrefix>
 	  <VersionSuffix></VersionSuffix>
 	  <Authors>Guillermo Galván</Authors>
-	  <LangVersion>11</LangVersion>
+	  <LangVersion>12</LangVersion>
 	  <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 	  <PackageProjectUrl>https://github.com/guillermo-galvan/GSqlQuery.Runner</PackageProjectUrl>
 	  <Copyright>Copyright (c) Guillermo Galván</Copyright>
