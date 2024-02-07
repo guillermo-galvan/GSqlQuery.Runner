@@ -30,26 +30,24 @@ namespace GSqlQuery.Runner.Queries
             (JoinType joinEnum, Expression<Func<TJoin, TProperties>> expression)
             where TJoin : class
         {
-            ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
-            options.MemberInfo.ValidateMemberInfos($"Could not infer property name for expression.");
+            ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
             var selectMember = options.MemberInfo.Select(x => x.Name);
-            selectMember.NullValidate(ErrorMessages.ParameterNotNull, nameof(selectMember));
-            return new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(_tableName, Columns, joinEnum, Options, ClassOptionsFactory.GetClassOptions(typeof(TJoin)).GetPropertyQuery(selectMember));
+            return new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(Columns, joinEnum, Options, GeneralExtension.GetPropertyQuery(options.ClassOptions, selectMember));
         }
 
         public IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>, TDbConnection>, ConnectionOptions<TDbConnection>> InnerJoin<TJoin>() where TJoin : class
         {
-            return new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(_tableName, Columns, JoinType.Inner, Options);
+            return new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(Columns, JoinType.Inner, Options);
         }
 
         public IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>, TDbConnection>, ConnectionOptions<TDbConnection>> LeftJoin<TJoin>() where TJoin : class
         {
-            return new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(_tableName, Columns, JoinType.Left, Options);
+            return new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(Columns, JoinType.Left, Options);
         }
 
         public IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>, TDbConnection>, ConnectionOptions<TDbConnection>> RightJoin<TJoin>() where TJoin : class
         {
-            return new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(_tableName, Columns, JoinType.Right, Options);
+            return new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(Columns, JoinType.Right, Options);
         }
 
         public IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>, TDbConnection>, ConnectionOptions<TDbConnection>> InnerJoin<TJoin>(Expression<Func<TJoin, object>> expression) where TJoin : class
@@ -69,17 +67,17 @@ namespace GSqlQuery.Runner.Queries
 
         IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>> IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>.InnerJoin<TJoin>()
         {
-            return (IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>>)new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(_tableName, Columns, JoinType.Inner, Options);
+            return (IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>>)new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(Columns, JoinType.Inner, Options);
         }
 
         IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>> IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>.LeftJoin<TJoin>()
         {
-            return (IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>>)new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(_tableName, Columns, JoinType.Left, Options);
+            return (IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>>)new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(Columns, JoinType.Left, Options);
         }
 
         IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>> IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>.RightJoin<TJoin>()
         {
-            return (IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>>)new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(_tableName, Columns, JoinType.Right, Options);
+            return (IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>>)new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(Columns, JoinType.Right, Options);
         }
 
         IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>>, ConnectionOptions<TDbConnection>> IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>.InnerJoin<TJoin>(Expression<Func<TJoin, object>> expression)

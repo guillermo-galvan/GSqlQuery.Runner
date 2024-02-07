@@ -18,7 +18,7 @@ namespace GSqlQuery.Runner.Queries
 
         public OrderByQueryBuilder(IEnumerable<string> selectMember, OrderBy orderBy,
            IAndOr<T, SelectQuery<T, TDbConnection>> andOr, ConnectionOptions<TDbConnection> options)
-           : base(selectMember, orderBy, andOr, options.Formats)
+           : base(selectMember, orderBy, andOr)
         {
             Options = options;
         }

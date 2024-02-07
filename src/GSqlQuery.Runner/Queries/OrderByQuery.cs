@@ -1,5 +1,5 @@
-﻿using GSqlQuery.Extensions;
-using GSqlQuery.Runner.Extensions;
+﻿using GSqlQuery.Runner.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,27 +19,33 @@ namespace GSqlQuery
 
         public IEnumerable<T> Execute()
         {
-            return DatabaseManagement.ExecuteReader<T>(this, GetClassOptions().PropertyOptions,
+            return DatabaseManagement.ExecuteReader<T>(this, Columns,
                 this.GetParameters<T, TDbConnection>(DatabaseManagement));
         }
 
         public IEnumerable<T> Execute(TDbConnection dbConnection)
         {
-            dbConnection.NullValidate(ErrorMessages.ParameterNotNull, nameof(dbConnection));
-            return DatabaseManagement.ExecuteReader<T>(dbConnection, this, GetClassOptions().PropertyOptions,
+            if (dbConnection == null)
+            {
+                throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
+            }
+            return DatabaseManagement.ExecuteReader<T>(dbConnection, this, Columns,
                 this.GetParameters<T, TDbConnection>(DatabaseManagement));
         }
 
         public Task<IEnumerable<T>> ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            return DatabaseManagement.ExecuteReaderAsync<T>(this, GetClassOptions().PropertyOptions,
+            return DatabaseManagement.ExecuteReaderAsync<T>(this, Columns,
                 this.GetParameters<T, TDbConnection>(DatabaseManagement), cancellationToken);
         }
 
         public Task<IEnumerable<T>> ExecuteAsync(TDbConnection dbConnection, CancellationToken cancellationToken = default)
         {
-            dbConnection.NullValidate(ErrorMessages.ParameterNotNull, nameof(dbConnection));
-            return DatabaseManagement.ExecuteReaderAsync<T>(dbConnection, this, GetClassOptions().PropertyOptions,
+            if (dbConnection == null)
+            {
+                throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
+            }
+            return DatabaseManagement.ExecuteReaderAsync<T>(dbConnection, this, Columns,
                 this.GetParameters<T, TDbConnection>(DatabaseManagement), cancellationToken);
         }
     }

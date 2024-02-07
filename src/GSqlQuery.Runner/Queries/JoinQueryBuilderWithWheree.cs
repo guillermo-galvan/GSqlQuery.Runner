@@ -8,30 +8,24 @@ using System.Reflection;
 
 namespace GSqlQuery.Runner.Queries
 {
-    internal class JoinQueryBuilderWithWheree<T1, T2, TDbConnection> : JoinQueryBuilderWithWhereBase<T1, T2, Join<T1, T2>, JoinQuery<Join<T1, T2>, TDbConnection>, ConnectionOptions<TDbConnection>>,
+    internal class JoinQueryBuilderWithWheree<T1, T2, TDbConnection> : 
+        JoinQueryBuilderWithWhereBase<T1, T2, Join<T1, T2>, JoinQuery<Join<T1, T2>, TDbConnection>, ConnectionOptions<TDbConnection>>,
         IJoinQueryBuilderWithWheree<T1, T2, JoinQuery<Join<T1, T2>, TDbConnection>, ConnectionOptions<TDbConnection>, TDbConnection>
         where T1 : class
         where T2 : class
     {
-        public JoinQueryBuilderWithWheree(string tableName, IEnumerable<PropertyOptions> columns, JoinType joinEnum, ConnectionOptions<TDbConnection> options,
+        public JoinQueryBuilderWithWheree(IEnumerable<PropertyOptions> columns, JoinType joinEnum, ConnectionOptions<TDbConnection> options,
             IEnumerable<PropertyOptions> columnsT2 = null) : base(null, options.Formats)
         {
             Options = options;
+            ClassOptions classoptions = ClassOptionsFactory.GetClassOptions(typeof(T1));
+            JoinInfo joinInfo = new JoinInfo(columns, classoptions, true);
+            _joinInfos.Enqueue(joinInfo);
 
-            _joinInfos.Enqueue(new JoinInfo
-            {
-                ClassOptions = ClassOptionsFactory.GetClassOptions(typeof(T1)),
-                Columns = columns,
-                IsMain = true,
-            });
+            ClassOptions classoptions2 = ClassOptionsFactory.GetClassOptions(typeof(T2));
+            columnsT2 ??= classoptions2.PropertyOptions;
 
-            var tmp = ClassOptionsFactory.GetClassOptions(typeof(T2));
-            _joinInfo = new JoinInfo
-            {
-                ClassOptions = tmp,
-                Columns = columnsT2 ?? tmp.GetPropertyQuery(tmp.PropertyOptions.Select(x => x.PropertyInfo.Name)),
-                JoinEnum = joinEnum,
-            };
+            _joinInfo = new JoinInfo(columnsT2, classoptions2, joinEnum);
 
             _joinInfos.Enqueue(_joinInfo);
 
@@ -45,11 +39,10 @@ namespace GSqlQuery.Runner.Queries
             Join<TJoin, TProperties>(JoinType joinEnum, Expression<Func<TJoin, TProperties>> expression)
             where TJoin : class
         {
-            ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
-            options.MemberInfo.ValidateMemberInfos($"Could not infer property name for expression.");
+            ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
+            GeneralExtension.ValidateMemberInfos(QueryType.Join, options);
             var selectMember = options.MemberInfo.Select(x => x.Name);
-            selectMember.NullValidate(ErrorMessages.ParameterNotNull, nameof(selectMember));
-            return new JoinQueryBuilderWithWhere<T1, T2, TJoin, TDbConnection>(_joinInfos, joinEnum, Options, ClassOptionsFactory.GetClassOptions(typeof(TJoin)).GetPropertyQuery(selectMember));
+            return new JoinQueryBuilderWithWhere<T1, T2, TJoin, TDbConnection>(_joinInfos, joinEnum, Options, GeneralExtension.GetPropertyQuery(options.ClassOptions, selectMember));
         }
 
         public override JoinQuery<Join<T1, T2>, TDbConnection> Build()

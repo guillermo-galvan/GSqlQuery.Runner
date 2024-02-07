@@ -60,7 +60,10 @@ namespace GSqlQuery
 
         public T Execute(TDbConnection dbConnection)
         {
-            dbConnection.NullValidate(ErrorMessages.ParameterNotNull, nameof(dbConnection));
+            if (dbConnection == null)
+            {
+                throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
+            }
 
             if (_propertyOptionsAutoIncrementing != null)
             {
@@ -90,7 +93,10 @@ namespace GSqlQuery
 
         public async Task<T> ExecuteAsync(TDbConnection dbConnection, CancellationToken cancellationToken = default)
         {
-            dbConnection.NullValidate(ErrorMessages.ParameterNotNull, nameof(dbConnection));
+            if (dbConnection == null)
+            {
+                throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
+            }
 
             if (_propertyOptionsAutoIncrementing != null)
             {

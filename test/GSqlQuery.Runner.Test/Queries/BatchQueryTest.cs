@@ -1,5 +1,4 @@
 ﻿using GSqlQuery.Runner.Test.Models;
-using GSqlQuery.SearchCriteria;
 using System;
 using System.Data;
 using System.Linq;
@@ -9,9 +8,7 @@ namespace GSqlQuery.Runner.Test.Queries
 {
     public class BatchQueryTest
     {
-        private readonly ColumnAttribute _columnAttribute;
-        private readonly TableAttribute _tableAttribute;
-        private readonly Equal<int> _equal;
+        private readonly CriteriaDetail _equal;
         private readonly IFormats _formats;
         private readonly ClassOptions _classOptions;
         private readonly ConnectionOptions<IDbConnection> _connectionOptions;
@@ -20,9 +17,7 @@ namespace GSqlQuery.Runner.Test.Queries
         {
             _formats = new TestFormats();
             _classOptions = ClassOptionsFactory.GetClassOptions(typeof(Test1));
-            _columnAttribute = _classOptions.PropertyOptions.First(x => x.ColumnAttribute.Name == nameof(Test1.Id)).ColumnAttribute;
-            _tableAttribute = _classOptions.Table;
-            _equal = new Equal<int>(_tableAttribute, _columnAttribute, 1);
+            _equal = new CriteriaDetail("SELECT COUNT([Test1].[Id]) FROM [Test1];", Array.Empty<ParameterDetail>());
             _connectionOptions = new ConnectionOptions<IDbConnection>(_formats, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
         }
 
@@ -33,7 +28,7 @@ namespace GSqlQuery.Runner.Test.Queries
 
             InsertQuery<Test6, IDbConnection> query = new InsertQuery<Test6, IDbConnection>("INSERT INTO [TableName] ([TableName].[Id],[TableName].[Name],[TableName].[Create],[TableName].[IsTests])",
                classOption.PropertyOptions,
-               new CriteriaDetail[] { _equal.GetCriteria(_formats, classOption.PropertyOptions) },
+               new CriteriaDetail[] { _equal },
                _connectionOptions, new Test6(1, null, DateTime.Now, true), classOption.PropertyOptions.FirstOrDefault(x => x.ColumnAttribute.IsAutoIncrementing));
 
             Assert.Throws<ArgumentNullException>(() => new BatchQuery(null, _classOptions.PropertyOptions, null));

@@ -15,17 +15,29 @@ namespace GSqlQuery
             Count<T, TDbConnection>(this IQueryBuilderWithWhere<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder)
             where T : class
         {
-            queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
+            if (queryBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(queryBuilder), ErrorMessages.ParameterNotNull);
+            }
             return new CountQueryBuilder<T, TDbConnection>(queryBuilder);
         }
 
         public static IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> OrderBy<T, TProperties, TDbConnection>
-           (this IQueryBuilderWithWhere<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
+           (this IQueryBuilderWithWhere<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder, 
+            Expression<Func<T, TProperties>> expression, OrderBy orderBy)
            where T : class
         {
-            queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
-            ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
-            options.MemberInfo.ValidateMemberInfos($"Could not infer property name for expression.");
+            if (queryBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(queryBuilder), ErrorMessages.ParameterNotNull);
+            }
+
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression), ErrorMessages.ParameterNotNull);
+            }
+            ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
+            GeneralExtension.ValidateMemberInfos(QueryType.Criteria, options);
             return new OrderByQueryBuilder<T, TDbConnection>(options.MemberInfo.Select(x => x.Name), orderBy, queryBuilder);
         }
 
@@ -33,9 +45,17 @@ namespace GSqlQuery
             (this IAndOr<T, SelectQuery<T, TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
             where T : class
         {
-            queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
-            ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
-            options.MemberInfo.ValidateMemberInfos($"Could not infer property name for expression.");
+            if (queryBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(queryBuilder), ErrorMessages.ParameterNotNull);
+            }
+
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression), ErrorMessages.ParameterNotNull);
+            }
+            ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
+            GeneralExtension.ValidateMemberInfos(QueryType.Criteria, options);
             var tmp = queryBuilder.Build();
             return new OrderByQueryBuilder<T, TDbConnection>(options.MemberInfo.Select(x => x.Name), orderBy, queryBuilder, new ConnectionOptions<TDbConnection>(tmp.Formats, tmp.DatabaseManagement));
         }
@@ -44,17 +64,21 @@ namespace GSqlQuery
             (this IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
             where T : class
         {
-            queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
-            ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
-            options.MemberInfo.ValidateMemberInfos($"Could not infer property name for expression.");
+            if (queryBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(queryBuilder), ErrorMessages.ParameterNotNull);
+            }
+
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression), ErrorMessages.ParameterNotNull);
+            }
+            ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
+            GeneralExtension.ValidateMemberInfos(QueryType.Criteria, options);
 
             if (queryBuilder is IOrderByQueryBuilder order)
             {
-                order.AddOrderBy(options.MemberInfo.Select(x => x.Name), orderBy);
-            }
-            else if (queryBuilder is IJoinOrderByQueryBuilder join)
-            {
-                join.AddOrderBy(options, orderBy);
+                order.AddOrderBy(options, orderBy);
             }
 
             return queryBuilder;
@@ -64,9 +88,17 @@ namespace GSqlQuery
             (this IQueryBuilderWithWhere<T, JoinQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
             where T : class
         {
-            queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
-            ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
-            options.MemberInfo.ValidateMemberInfos($"Could not infer property name for expression.");
+            if (queryBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(queryBuilder), ErrorMessages.ParameterNotNull);
+            }
+
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression), ErrorMessages.ParameterNotNull);
+            }
+            ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
+            GeneralExtension.ValidateMemberInfos(QueryType.Criteria, options);
             return new JoinOrderByQueryBuilder<T, TDbConnection>(options, orderBy, queryBuilder);
         }
 
@@ -74,9 +106,17 @@ namespace GSqlQuery
             (this IAndOr<T, JoinQuery<T, TDbConnection>> queryBuilder, Expression<Func<T, TProperties>> expression, OrderBy orderBy)
             where T : class
         {
-            queryBuilder.NullValidate(ErrorMessages.ParameterNotNull, nameof(queryBuilder));
-            ClassOptionsTupla<IEnumerable<MemberInfo>> options = expression.GetOptionsAndMembers();
-            options.MemberInfo.ValidateMemberInfos($"Could not infer property name for expression.");
+            if (queryBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(queryBuilder), ErrorMessages.ParameterNotNull);
+            }
+
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression), ErrorMessages.ParameterNotNull);
+            }
+            ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
+            GeneralExtension.ValidateMemberInfos(QueryType.Criteria, options);
             var tmp = queryBuilder.Build();
             return new JoinOrderByQueryBuilder<T, TDbConnection>(options, orderBy, queryBuilder, new ConnectionOptions<TDbConnection>(tmp.Formats, tmp.DatabaseManagement));
         }

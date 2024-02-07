@@ -1,5 +1,6 @@
 ﻿using GSqlQuery.Extensions;
 using GSqlQuery.Runner.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +24,10 @@ namespace GSqlQuery
 
         public int Execute(TDbConnection dbConnection)
         {
-            dbConnection.NullValidate(ErrorMessages.ParameterNotNull, nameof(dbConnection));
+            if (dbConnection == null)
+            {
+                throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
+            }
             return DatabaseManagement.ExecuteNonQuery(dbConnection, this, this.GetParameters<T, TDbConnection>(DatabaseManagement));
         }
 
@@ -34,7 +38,10 @@ namespace GSqlQuery
 
         public Task<int> ExecuteAsync(TDbConnection dbConnection, CancellationToken cancellationToken = default)
         {
-            dbConnection.NullValidate(ErrorMessages.ParameterNotNull, nameof(dbConnection));
+            if (dbConnection == null)
+            {
+                throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
+            }
             return DatabaseManagement.ExecuteNonQueryAsync(dbConnection, this, this.GetParameters<T, TDbConnection>(DatabaseManagement), cancellationToken);
         }
     }
