@@ -19,19 +19,31 @@ namespace GSqlQuery.Runner.Queries
             Options = options;
         }
 
+        public SelectQueryBuilder(IEnumerable<PropertyOptions> propertyOptions, ConnectionOptions<TDbConnection> options) : base(options?.Formats)
+        {
+            Columns = propertyOptions;
+            Options = options;
+        }
+
         new public ConnectionOptions<TDbConnection> Options { get; }
 
         public override SelectQuery<T, TDbConnection> Build()
         {
-            return new SelectQuery<T, TDbConnection>(CreateQuery(), Columns, _criteria, Options);
+            string text = CreateQuery();
+            return new SelectQuery<T, TDbConnection>(text, Columns, _criteria, Options);
         }
 
         private IComparisonOperators<Join<T, TJoin>, JoinQuery<Join<T, TJoin>, TDbConnection>, ConnectionOptions<TDbConnection>> Join<TJoin, TProperties>
             (JoinType joinEnum, Expression<Func<TJoin, TProperties>> expression)
             where TJoin : class
         {
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression), ErrorMessages.ParameterNotNull);
+            }
+
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
-            var selectMember = options.MemberInfo.Select(x => x.Name);
+            IEnumerable<string> selectMember = options.MemberInfo.Select(x => x.Name);
             return new JoinQueryBuilderWithWheree<T, TJoin, TDbConnection>(Columns, joinEnum, Options, GeneralExtension.GetPropertyQuery(options.ClassOptions, selectMember));
         }
 

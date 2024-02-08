@@ -41,13 +41,13 @@ namespace GSqlQuery.Runner.Queries
         {
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
             GeneralExtension.ValidateMemberInfos(QueryType.Join, options);
-            var selectMember = options.MemberInfo.Select(x => x.Name);
+            IEnumerable<string> selectMember = options.MemberInfo.Select(x => x.Name);
             return new JoinQueryBuilderWithWhere<T1, T2, TJoin, TDbConnection>(_joinInfos, joinEnum, Options, GeneralExtension.GetPropertyQuery(options.ClassOptions, selectMember));
         }
 
         public override JoinQuery<Join<T1, T2>, TDbConnection> Build()
         {
-            var query = CreateQuery();
+            string query = CreateQuery();
             return new JoinQuery<Join<T1, T2>, TDbConnection>(query, Columns, _criteria, Options);
         }
 
@@ -134,7 +134,7 @@ namespace GSqlQuery.Runner.Queries
 
         public override JoinQuery<Join<T1, T2, T3>, TDbConnection> Build()
         {
-            var query = CreateQuery();
+            string query = CreateQuery();
             return new JoinQuery<Join<T1, T2, T3>, TDbConnection>(query, Columns, _criteria, Options);
         }
 

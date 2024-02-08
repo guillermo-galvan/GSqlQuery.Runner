@@ -6,17 +6,13 @@ namespace GSqlQuery.Runner.Extensions
 {
     public static class GeneralExtension
     {
-        public static IEnumerable<IDataParameter> GetParameters<T, TDbConnection>(this IQuery query,
+        public static IEnumerable<IDataParameter> GetParameters<T, TDbConnection>(IQuery query,
             IDatabaseManagement<TDbConnection> databaseManagement) where T : class
         {
-            List<ParameterDetail> parameters = new List<ParameterDetail>();
             if (query.Criteria != null)
             {
-#if NET5_0_OR_GREATER
-                return databaseManagement.Events.GetParameter<T>(query.Criteria.Where(x => x.ParameterDetails is not null).SelectMany(x => x.ParameterDetails));
-#else
-                return databaseManagement.Events.GetParameter<T>(query.Criteria.Where(x => x.ParameterDetails != null).SelectMany(x => x.ParameterDetails));
-#endif
+                IEnumerable<ParameterDetail> parameterDetails = query.Criteria.Where(x => x.ParameterDetails != null).SelectMany(x => x.ParameterDetails);
+                return databaseManagement.Events.GetParameter<T>(parameterDetails);
             }
 
             return Enumerable.Empty<IDataParameter>();

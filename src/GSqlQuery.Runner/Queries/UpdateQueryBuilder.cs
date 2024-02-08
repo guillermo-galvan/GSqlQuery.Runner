@@ -26,7 +26,8 @@ namespace GSqlQuery.Runner.Queries
 
         public override UpdateQuery<T, TDbConnection> Build()
         {
-            return new UpdateQuery<T, TDbConnection>(CreateQuery(), Columns, _criteria, Options);
+            string text = CreateQuery();
+            return new UpdateQuery<T, TDbConnection>(text, Columns, _criteria, Options);
         }
 
         public ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Set<TProperties>(Expression<Func<T, TProperties>> expression, TProperties value)

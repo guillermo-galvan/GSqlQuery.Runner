@@ -10,6 +10,17 @@ namespace GSqlQuery.Runner.Test
     public class EntityTest
     {
         [Fact]
+        public void borrar_desepues()
+        {
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            var select = Test3.Select(connectionOptions, x => new {x.Ids, x.IsTests});
+            var where = select.Where();
+            var criteria = where.Between(x => x.Creates, DateTime.Now.AddDays(30), DateTime.Now);
+            var result = select.Build();
+            
+        }
+
+        [Fact]
         public void Throw_an_exception_if_null_key_is_passed()
         {
             ConnectionOptions<IDbConnection> connectionOptions = null;
@@ -674,6 +685,30 @@ namespace GSqlQuery.Runner.Test
             Assert.NotNull(queryResult);
             Assert.NotEmpty(queryResult.Text);
             Assert.Equal(query, result);
+        }
+
+        [Theory]
+        [ClassData(typeof(Delete_Test3_TestData3))]
+        public void Should_generate_the_delete_query_with_entity(ConnectionOptions<IDbConnection> connectionOptions, string queryText)
+        {
+            Test3 test3 = new Test3(1, "Names", DateTime.Now, true);
+            var query = Test3.Delete(connectionOptions, test3).Build();
+
+            Assert.NotNull(query);
+            Assert.NotNull(query.Text);
+            Assert.NotEmpty(query.Text);
+            Assert.NotNull(query.Columns);
+            Assert.NotEmpty(query.Columns);
+            Assert.NotNull(query.Formats);
+            Assert.NotNull(query.Criteria);
+            Assert.NotEmpty(query.Criteria);
+
+            string result = query.Text;
+            foreach (var item in query.Criteria)
+            {
+                result = item.ParameterDetails.ParameterReplace(result);
+            }
+            Assert.Equal(queryText, result);
         }
     }
 }

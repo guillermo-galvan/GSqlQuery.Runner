@@ -20,7 +20,7 @@ namespace GSqlQuery
         public IEnumerable<T> Execute()
         {
             return DatabaseManagement.ExecuteReader(this, Columns,
-                this.GetParameters<T, TDbConnection>(DatabaseManagement));
+                Runner.Extensions.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement));
         }
 
         public IEnumerable<T> Execute(TDbConnection dbConnection)
@@ -30,13 +30,13 @@ namespace GSqlQuery
                 throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
             }
             return DatabaseManagement.ExecuteReader(dbConnection, this, Columns,
-                this.GetParameters<T, TDbConnection>(DatabaseManagement));
+                Runner.Extensions.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement));
         }
 
         public Task<IEnumerable<T>> ExecuteAsync(CancellationToken cancellationToken = default)
         {
             return DatabaseManagement.ExecuteReaderAsync(this, Columns,
-                this.GetParameters<T, TDbConnection>(DatabaseManagement), cancellationToken);
+                Runner.Extensions.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement), cancellationToken);
         }
 
         public Task<IEnumerable<T>> ExecuteAsync(TDbConnection dbConnection, CancellationToken cancellationToken = default)
@@ -46,7 +46,7 @@ namespace GSqlQuery
                 throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
             }
             return DatabaseManagement.ExecuteReaderAsync(dbConnection, this, Columns,
-                this.GetParameters<T, TDbConnection>(DatabaseManagement), cancellationToken);
+                Runner.Extensions.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement), cancellationToken);
         }
     }
 }

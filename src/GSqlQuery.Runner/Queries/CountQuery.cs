@@ -1,7 +1,6 @@
-﻿using GSqlQuery.Extensions;
-using GSqlQuery.Runner.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,16 +10,18 @@ namespace GSqlQuery
         where T : class
     {
         public IDatabaseManagement<TDbConnection> DatabaseManagement { get; }
+        private readonly IEnumerable<IDataParameter> _parameters;
 
         internal CountQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria, ConnectionOptions<TDbConnection> connectionOptions)
             : base(text, columns, criteria, connectionOptions.Formats)
         {
             DatabaseManagement = connectionOptions.DatabaseManagement;
+            _parameters = Runner.Extensions.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);
         }
 
         public int Execute()
         {
-            return DatabaseManagement.ExecuteScalar<int>(this, this.GetParameters<T, TDbConnection>(DatabaseManagement));
+            return DatabaseManagement.ExecuteScalar<int>(this, _parameters);
         }
 
         public int Execute(TDbConnection dbConnection)
@@ -30,12 +31,13 @@ namespace GSqlQuery
                 throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
             }
 
-            return DatabaseManagement.ExecuteScalar<int>(dbConnection, this, this.GetParameters<T, TDbConnection>(DatabaseManagement));
+            return DatabaseManagement.ExecuteScalar<int>(dbConnection, this, _parameters);
         }
 
         public Task<int> ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            return DatabaseManagement.ExecuteScalarAsync<int>(this, this.GetParameters<T, TDbConnection>(DatabaseManagement), cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            return DatabaseManagement.ExecuteScalarAsync<int>(this, _parameters, cancellationToken);
         }
 
         public Task<int> ExecuteAsync(TDbConnection dbConnection, CancellationToken cancellationToken = default)
@@ -44,7 +46,8 @@ namespace GSqlQuery
             {
                 throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
             }
-            return DatabaseManagement.ExecuteScalarAsync<int>(dbConnection, this, this.GetParameters<T, TDbConnection>(DatabaseManagement), cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            return DatabaseManagement.ExecuteScalarAsync<int>(dbConnection, this, _parameters, cancellationToken);
         }
     }
 }

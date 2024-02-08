@@ -24,9 +24,9 @@ namespace GSqlQuery.Runner.Transforms
         {
             object result = _classOptions.ConstructorInfo.Invoke(null);
 
-            foreach (var item in columns)
+            foreach (PropertyOptionsInEntity item in columns)
             {
-                var value = item.Ordinal.HasValue ? TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value)) : item.DefaultValue;
+                object value = item.Ordinal.HasValue ? TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value)) : item.DefaultValue;
 
                 if (value != null)
                 {

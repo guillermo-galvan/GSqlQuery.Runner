@@ -25,7 +25,7 @@ namespace GSqlQuery.Runner
 
         internal DbCommand CreateCommand(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
         {
-            var command = connection.GetDbCommand();
+            DbCommand command = connection.GetDbCommand();
             command.CommandText = query.Text;
 
             if (parameters != null)
@@ -53,7 +53,7 @@ namespace GSqlQuery.Runner
         {
             Events.WriteTrace("ExecuteNonQuery Query: {@Text} Parameters: {@parameters}",
              new object[] { query.Text, parameters });
-            using (var command = CreateCommand(connection, query, parameters))
+            using (DbCommand command = CreateCommand(connection, query, parameters))
             {
                 return command.ExecuteNonQuery();
             }
@@ -79,7 +79,7 @@ namespace GSqlQuery.Runner
             cancellationToken.ThrowIfCancellationRequested();
             Events.WriteTrace("ExecuteNonQueryAsync Query: {@Text} Parameters: {@parameters}",
              new object[] { query.Text, parameters });
-            using (var command = CreateCommand(connection, query, parameters))
+            using (DbCommand command = CreateCommand(connection, query, parameters))
             {
                 return command.ExecuteNonQueryAsync(cancellationToken);
             }
@@ -109,11 +109,11 @@ namespace GSqlQuery.Runner
             ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)));
             Queue<T> result = new Queue<T>();
 
-            using (var command = CreateCommand(connection, query, parameters))
+            using (DbCommand command = CreateCommand(connection, query, parameters))
             {
                 using (DbDataReader reader = command.ExecuteReader())
                 {
-                    var columns = transformToEntity.GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
+                    IEnumerable<PropertyOptionsInEntity> columns = transformToEntity.GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
 
                     while (reader.Read())
                     {
@@ -147,11 +147,11 @@ namespace GSqlQuery.Runner
             ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(ClassOptionsFactory.GetClassOptions(typeof(T)));
             Queue<T> result = new Queue<T>();
 
-            using (var command = CreateCommand(connection, query, parameters))
+            using (DbCommand command = CreateCommand(connection, query, parameters))
             {
                 using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken))
                 {
-                    var columns = transformToEntity.GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
+                    IEnumerable<PropertyOptionsInEntity> columns = transformToEntity.GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
 
                     while (await reader.ReadAsync(cancellationToken))
                     {
@@ -182,7 +182,7 @@ namespace GSqlQuery.Runner
         {
             Events.WriteTrace("ExecuteScalar Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
                 new object[] { typeof(T).FullName, query.Text, parameters });
-            using (var command = CreateCommand(connection, query, parameters))
+            using (DbCommand command = CreateCommand(connection, query, parameters))
             {
                 object resultCommand = command.ExecuteScalar();
                 return (T)TransformTo.SwitchTypeValue(typeof(T), resultCommand);
@@ -209,7 +209,7 @@ namespace GSqlQuery.Runner
             cancellationToken.ThrowIfCancellationRequested();
             Events.WriteTrace("ExecuteScalarAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}",
                 new object[] { typeof(T).FullName, query.Text, parameters });
-            using (var command = CreateCommand(connection, query, parameters))
+            using (DbCommand command = CreateCommand(connection, query, parameters))
             {
                 object resultCommand = await command.ExecuteScalarAsync(cancellationToken);
                 return (T)TransformTo.SwitchTypeValue(typeof(T), resultCommand);

@@ -24,7 +24,7 @@ namespace GSqlQuery.Runner.Transforms
             public int Position { get; set; }
         }
 
-        private readonly List<JoinClassOptions> _joinClassOptions;
+        private readonly JoinClassOptions[] _joinClassOptions;
         private readonly ITransformTo<T> _transformTo;
         private readonly DatabaseManagementEvents _events;
 
@@ -37,7 +37,7 @@ namespace GSqlQuery.Runner.Transforms
                 PropertyOptions = x,
                 ClassOptions = ClassOptionsFactory.GetClassOptions(x.PropertyInfo.PropertyType),
                 Position = position++,
-            }).ToList();
+            }).ToArray();
 
             if (!_classOptions.IsConstructorByParam)
             {
@@ -53,7 +53,7 @@ namespace GSqlQuery.Runner.Transforms
         {
             Queue<PropertyOptionsInEntity> tmpCol = new Queue<PropertyOptionsInEntity>();
 
-            foreach (var item in _joinClassOptions)
+            foreach (JoinClassOptions item in _joinClassOptions)
             {
                 object a  = item.MethodInfo.Invoke(item.TransformTo,new object[] { item.PropertyOptionsInEntities, reader });
 
@@ -67,11 +67,11 @@ namespace GSqlQuery.Runner.Transforms
         {
             List<PropertyOptionsInEntity> result = new List<PropertyOptionsInEntity>();
 
-            var columnGroup = query.Columns.GroupBy(x => x.TableAttribute.Name);
+            IEnumerable<IGrouping<string, PropertyOptions>> columnGroup = query.Columns.GroupBy(x => x.TableAttribute.Name);
 
-            foreach (var item in _joinClassOptions)
+            foreach (JoinClassOptions item in _joinClassOptions)
             {
-                var tmpColumns = columnGroup.First(x => x.Key == item.ClassOptions.Table.Name);
+                IGrouping<string, PropertyOptions> tmpColumns = columnGroup.First(x => x.Key == item.ClassOptions.Table.Name);
                 item.PropertyOptionsInEntities = GetPropertiesJoin(item.ClassOptions, tmpColumns, reader);
                 result.AddRange(item.PropertyOptionsInEntities);
 

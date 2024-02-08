@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace GSqlQuery.Runner.Queries
+﻿namespace GSqlQuery.Runner.Queries
 {
     internal class CountQueryBuilder<T, TDbConnection> :
         GSqlQuery.Queries.CountQueryBuilder<T, CountQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>, SelectQuery<T, TDbConnection>>,
@@ -18,7 +16,7 @@ namespace GSqlQuery.Runner.Queries
 
         public override CountQuery<T, TDbConnection> Build()
         {
-            var query = CreateQuery();
+            string query = CreateQuery();
             return new CountQuery<T, TDbConnection>(query, Columns, _criteria, _queryBuilder.Options);
         }
 

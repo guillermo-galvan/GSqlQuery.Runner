@@ -56,7 +56,7 @@ namespace GSqlQuery
             }
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
             GeneralExtension.ValidateMemberInfos(QueryType.Criteria, options);
-            var tmp = queryBuilder.Build();
+            SelectQuery<T, TDbConnection> tmp = queryBuilder.Build();
             return new OrderByQueryBuilder<T, TDbConnection>(options.MemberInfo.Select(x => x.Name), orderBy, queryBuilder, new ConnectionOptions<TDbConnection>(tmp.Formats, tmp.DatabaseManagement));
         }
 
@@ -117,7 +117,7 @@ namespace GSqlQuery
             }
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
             GeneralExtension.ValidateMemberInfos(QueryType.Criteria, options);
-            var tmp = queryBuilder.Build();
+            JoinQuery<T, TDbConnection> tmp = queryBuilder.Build();
             return new JoinOrderByQueryBuilder<T, TDbConnection>(options, orderBy, queryBuilder, new ConnectionOptions<TDbConnection>(tmp.Formats, tmp.DatabaseManagement));
         }
     }

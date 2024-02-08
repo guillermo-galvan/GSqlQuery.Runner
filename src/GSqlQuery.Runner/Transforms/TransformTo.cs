@@ -45,8 +45,7 @@ namespace GSqlQuery.Runner.Transforms
                         new PropertyOptionsInEntity(pro,
                         Nullable.GetUnderlyingType(pro.PropertyInfo.PropertyType) ?? pro.PropertyInfo.PropertyType,
                         pro.PropertyInfo.PropertyType.IsValueType ? Activator.CreateInstance(pro.PropertyInfo.PropertyType) : null,
-                        left != null ? (int?)reader.GetOrdinal(pro.ColumnAttribute.Name) : null))
-                        .ToArray();
+                        left != null ? reader.GetOrdinal(pro.ColumnAttribute.Name) : null)).ToArray();
         }
 
         public virtual IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, DbDataReader reader)

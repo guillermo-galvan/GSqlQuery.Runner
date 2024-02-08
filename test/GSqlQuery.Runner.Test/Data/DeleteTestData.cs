@@ -39,4 +39,22 @@ namespace GSqlQuery.Runner.Test.Data
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
+
+    internal class Delete_Test3_TestData3 : IEnumerable<object[]>
+    {
+        public IEnumerator<object[]> GetEnumerator()
+        {
+            yield return new object[]
+            {
+               new ConnectionOptions<IDbConnection>(new DefaultFormats(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"DELETE FROM Test3 WHERE Test3.Id=@Param AND Test3.Name=@Param AND Test3.Create=@Param AND Test3.IsTests=@Param;"
+            };
+
+            yield return new object[]
+            {
+                new ConnectionOptions<IDbConnection>(new Models.TestFormats(),LoadGSqlQueryOptions.GetDatabaseManagmentMock()),"DELETE FROM [Test3] WHERE [Test3].[Id]=@Param AND [Test3].[Name]=@Param AND [Test3].[Create]=@Param AND [Test3].[IsTests]=@Param;"
+            };
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

@@ -26,7 +26,8 @@ namespace GSqlQuery
 
             ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
             GeneralExtension.ValidateMemberInfos(QueryType.Read, options);
-            return new SelectQueryBuilder<T, TDbConnection>(options.MemberInfo.Select(x => x.Name), connectionOptions);
+            IEnumerable<string> selectMember = options.MemberInfo.Select(x => x.Name);
+            return new SelectQueryBuilder<T, TDbConnection>(selectMember, connectionOptions);
         }
 
         public static IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>, TDbConnection>
@@ -36,7 +37,8 @@ namespace GSqlQuery
             {
                 throw new ArgumentNullException(nameof(connectionOptions), ErrorMessages.ParameterNotNull);
             }
-            return new SelectQueryBuilder<T, TDbConnection>(ClassOptionsFactory.GetClassOptions(typeof(T)).PropertyOptions.Select(x => x.PropertyInfo.Name), connectionOptions);
+            IEnumerable<PropertyOptions> propertyOptions = ClassOptionsFactory.GetClassOptions(typeof(T)).PropertyOptions;
+            return new SelectQueryBuilder<T, TDbConnection>(propertyOptions, connectionOptions);
         }
 
         public IQueryBuilder<InsertQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Insert<TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions)
@@ -101,6 +103,27 @@ namespace GSqlQuery
                 throw new ArgumentNullException(nameof(connectionOptions), ErrorMessages.ParameterNotNull);
             }
             return new DeleteQueryBuilder<T, TDbConnection>(connectionOptions);
+        }
+
+        /// <summary>
+        /// Delete query
+        /// </summary>
+        /// <param name="formats">Formats</param>
+        /// <param name="entity">Entity</param>
+        /// <returns>Bulder</returns>
+        public static IQueryBuilderWithWhere<T, DeleteQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
+            Delete<TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions, T entity)
+        {
+            if (connectionOptions == null)
+            {
+                throw new ArgumentNullException(nameof(connectionOptions), ErrorMessages.ParameterNotNull);
+            }
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity), ErrorMessages.ParameterNotNull);
+            }
+
+            return new DeleteQueryBuilder<T, TDbConnection>(entity, connectionOptions);
         }
     }
 }

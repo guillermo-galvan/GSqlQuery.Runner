@@ -35,7 +35,8 @@ namespace GSqlQuery.Runner.Test.Queries
         [Fact]
         public void Throw_an_exception_if_nulls_are_passed_in_the_parameters2()
         {
-            Assert.Throws<ArgumentNullException>(() => new SelectQueryBuilder<Test1, IDbConnection>(null, _connectionOptions));
+            IEnumerable<string> members = null;
+            Assert.Throws<ArgumentNullException>(() => new SelectQueryBuilder<Test1, IDbConnection>(members, _connectionOptions));
             Assert.Throws<ArgumentNullException>(() => new SelectQueryBuilder<Test1, IDbConnection>(
                 new List<string> { nameof(Test1.Id), nameof(Test1.Name), nameof(Test1.Create) }, null));
         }

@@ -33,14 +33,16 @@ namespace GSqlQuery.Runner
             where T : class
         {
             IQuery query = expression.Invoke(_connectionOptions);
-            foreach (var item in query.GetParameters<T, TDbConnection>(_connectionOptions.DatabaseManagement))
+            IEnumerable<IDataParameter> parameters = GeneralExtension.GetParameters<T, TDbConnection>(query, _connectionOptions.DatabaseManagement);
+
+            foreach (IDataParameter item in parameters)
             {
                 _parameters.Enqueue(item);
             }
 
             _queryBuilder.Append(query.Text);
 
-            foreach (var item in query.Columns)
+            foreach (PropertyOptions item in query.Columns)
             {
                 _columns.Enqueue(item);
             }
@@ -51,25 +53,25 @@ namespace GSqlQuery.Runner
 
         public int Execute()
         {
-            var query = new BatchQuery(_queryBuilder.ToString(), _columns, null);
+            BatchQuery query = new BatchQuery(_queryBuilder.ToString(), _columns, null);
             return _connectionOptions.DatabaseManagement.ExecuteNonQuery(query, _parameters);
         }
 
         public int Execute(TDbConnection connection)
         {
-            var query = new BatchQuery(_queryBuilder.ToString(), _columns, null);
+            BatchQuery query = new BatchQuery(_queryBuilder.ToString(), _columns, null);
             return _connectionOptions.DatabaseManagement.ExecuteNonQuery(connection, query, _parameters);
         }
 
         public Task<int> ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            var query = new BatchQuery(_queryBuilder.ToString(), _columns, null);
+            BatchQuery query = new BatchQuery(_queryBuilder.ToString(), _columns, null);
             return _connectionOptions.DatabaseManagement.ExecuteNonQueryAsync(query, _parameters, cancellationToken);
         }
 
         public Task<int> ExecuteAsync(TDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var query = new BatchQuery(_queryBuilder.ToString(), _columns, null);
+            BatchQuery query = new BatchQuery(_queryBuilder.ToString(), _columns, null);
             return _connectionOptions.DatabaseManagement.ExecuteNonQueryAsync(connection, query, _parameters, cancellationToken);
         }
     }
