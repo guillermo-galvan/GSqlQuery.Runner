@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner.Transforms
 {
@@ -26,7 +27,15 @@ namespace GSqlQuery.Runner.Transforms
 
             foreach (PropertyOptionsInEntity item in columns)
             {
-                object value = item.Ordinal.HasValue ? TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value)) : item.DefaultValue;
+                object value;
+                if (item.Ordinal.HasValue)
+                {
+                    value = TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value));
+                } 
+                else
+                {
+                    value = item.DefaultValue;
+                }
 
                 if (value != null)
                 {
@@ -35,6 +44,11 @@ namespace GSqlQuery.Runner.Transforms
             }
 
             return (T)result;
+        }
+
+        public override Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader)
+        {
+            return Task.FromResult(Generate(columns, reader));
         }
     }
 }

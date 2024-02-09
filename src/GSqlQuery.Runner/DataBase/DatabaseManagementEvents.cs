@@ -12,14 +12,14 @@ namespace GSqlQuery
     {
         public bool IsTraceActive { get; set; } = false;
 
+        private readonly Type _typeJoinTowTable = typeof(Join<,>);
+        private readonly Type _typeJoinThreeTable = typeof(Join<,,>);
+
         public abstract IEnumerable<IDataParameter> GetParameter<T>(IEnumerable<ParameterDetail> parameters);
 
         public virtual void WriteTrace(string message, object[] param)
         {
-            if (IsTraceActive)
-            {
-                Debug.WriteLine("Message: {0}, Param {1}", message, param);
-            }
+            Debug.WriteLine("Message: {0}, Param {1}", message, param);
         }
 
         public virtual ITransformTo<T> GetTransformTo<T>(ClassOptions classOptions)
@@ -28,8 +28,8 @@ namespace GSqlQuery
             Type type = typeof(T);
 
             if (type.IsGenericType &&
-                (typeof(Join<,>) == type.GetGenericTypeDefinition() || 
-                typeof(Join<,,>) == type.GetGenericTypeDefinition()))
+                (_typeJoinTowTable == type.GetGenericTypeDefinition() ||
+                _typeJoinThreeTable == type.GetGenericTypeDefinition()))
             {
                 return new JoinTransformTo<T>(classOptions.PropertyOptions.Count(), this);
             }

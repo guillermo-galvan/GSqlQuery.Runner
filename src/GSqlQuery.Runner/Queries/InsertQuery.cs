@@ -32,11 +32,11 @@ namespace GSqlQuery
             object idResult;
             if (connection == null)
             {
-                idResult = await DatabaseManagement.ExecuteScalarAsync<object>(this, _parameters, cancellationToken);
+                idResult = await DatabaseManagement.ExecuteScalarAsync<object>(this, _parameters, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                idResult = await DatabaseManagement.ExecuteScalarAsync<object>(connection, this, _parameters, cancellationToken);
+                idResult = await DatabaseManagement.ExecuteScalarAsync<object>(connection, this, _parameters, cancellationToken).ConfigureAwait(false);
             }
 
             Type newType = Nullable.GetUnderlyingType(_propertyOptionsAutoIncrementing.PropertyInfo.PropertyType);
@@ -99,11 +99,11 @@ namespace GSqlQuery
             cancellationToken.ThrowIfCancellationRequested();
             if (_propertyOptionsAutoIncrementing != null)
             {
-                await InsertAutoIncrementingAsync(cancellationToken: cancellationToken);
+                await InsertAutoIncrementingAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await DatabaseManagement.ExecuteNonQueryAsync(this, _parameters, cancellationToken);
+                await DatabaseManagement.ExecuteNonQueryAsync(this, _parameters, cancellationToken).ConfigureAwait(false);
             }
 
             return (T)Entity;
@@ -118,11 +118,11 @@ namespace GSqlQuery
             cancellationToken.ThrowIfCancellationRequested();
             if (_propertyOptionsAutoIncrementing != null)
             {
-                await InsertAutoIncrementingAsync(dbConnection, cancellationToken);
+                await InsertAutoIncrementingAsync(dbConnection, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await DatabaseManagement.ExecuteNonQueryAsync(dbConnection, this, _parameters, cancellationToken);
+                await DatabaseManagement.ExecuteNonQueryAsync(dbConnection, this, _parameters, cancellationToken).ConfigureAwait(false);
             }
 
             return (T)Entity;

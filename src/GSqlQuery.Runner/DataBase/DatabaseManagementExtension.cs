@@ -30,13 +30,13 @@ namespace GSqlQuery.Runner
 
         public static async Task<TResult> ExecuteWithTransactionAsync<TResult>(this IExecute<TResult, IConnection> query)
         {
-            using (IConnection connection = await query.DatabaseManagement.GetConnectionAsync())
+            using (IConnection connection = await query.DatabaseManagement.GetConnectionAsync().ConfigureAwait(false))
             {
-                using (ITransaction transaction = await connection.BeginTransactionAsync())
+                using (ITransaction transaction = await connection.BeginTransactionAsync().ConfigureAwait(false))
                 {
-                    TResult result = await query.ExecuteAsync(transaction.Connection);
-                    await transaction.CommitAsync();
-                    await connection.CloseAsync();
+                    TResult result = await query.ExecuteAsync(transaction.Connection).ConfigureAwait(false);
+                    await transaction.CommitAsync().ConfigureAwait(false);
+                    await connection.CloseAsync().ConfigureAwait(false);
                     return result;
                 }
             }

@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner.Transforms
 {
     public static class TransformTo 
     {
+        internal static Type charType = typeof(char[]);
+
         public static object SwitchTypeValue(Type type, object value)
         {
             if (value == DBNull.Value || value == null)
             {
                 return null;
             }
-            else if (typeof(char[]) == type && value is string tmp)
+            else if (charType == type && value is string tmp)
             {
                 return tmp.ToCharArray();
             }
@@ -54,6 +57,8 @@ namespace GSqlQuery.Runner.Transforms
         }
 
         public abstract T Generate(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader);
+
+        public abstract Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader);
 
     }
 }

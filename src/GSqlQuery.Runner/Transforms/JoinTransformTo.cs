@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using GSqlQuery.Extensions; 
 
 namespace GSqlQuery.Runner.Transforms
@@ -49,6 +50,20 @@ namespace GSqlQuery.Runner.Transforms
             }
         }
 
+        protected IEnumerable<PropertyOptionsInEntity> GetPropertiesJoin(ClassOptions classOptions,
+            IEnumerable<PropertyOptions> propertyOptionsColumns, DbDataReader reader)
+        {
+            return (from pro in classOptions.PropertyOptions
+                    join ca in propertyOptionsColumns on pro.ColumnAttribute.Name equals ca.ColumnAttribute.Name into leftJoin
+                    from left in leftJoin.DefaultIfEmpty()
+                    select
+                        new PropertyOptionsInEntity(pro,
+                        Nullable.GetUnderlyingType(pro.PropertyInfo.PropertyType) ?? pro.PropertyInfo.PropertyType,
+                        pro.PropertyInfo.PropertyType.IsValueType ? Activator.CreateInstance(pro.PropertyInfo.PropertyType) : null,
+                        left != null ? (int?)reader.GetOrdinal($"{classOptions.Type.Name}_{pro.ColumnAttribute.Name}") : null))
+                        .ToArray();
+        }
+
         public override T Generate(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader)
         {
             Queue<PropertyOptionsInEntity> tmpCol = new Queue<PropertyOptionsInEntity>();
@@ -63,9 +78,14 @@ namespace GSqlQuery.Runner.Transforms
             return _transformTo.Generate(tmpCol, reader);
         }
 
+        public override Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader)
+        {
+            return Task.FromResult(Generate(columns, reader));
+        }
+
         public override IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, DbDataReader reader)
         {
-            List<PropertyOptionsInEntity> result = new List<PropertyOptionsInEntity>();
+            List<PropertyOptionsInEntity> result = [];
 
             IEnumerable<IGrouping<string, PropertyOptions>> columnGroup = query.Columns.GroupBy(x => x.TableAttribute.Name);
 
@@ -76,25 +96,11 @@ namespace GSqlQuery.Runner.Transforms
                 result.AddRange(item.PropertyOptionsInEntities);
 
                 MethodInfo methodInfo = _events.GetType().GetMethod("GetTransformTo").MakeGenericMethod(item.ClassOptions.Type);
-                item.TransformTo = methodInfo?.Invoke(_events, new object[] { item.ClassOptions }); ;
+                item.TransformTo = methodInfo?.Invoke(_events, new object[] { item.ClassOptions });
                 item.MethodInfo = item.TransformTo.GetType().GetMethod("Generate");
             }
 
             return result;
-        }
-
-        protected IEnumerable<PropertyOptionsInEntity> GetPropertiesJoin(ClassOptions classOptions,
-            IEnumerable<PropertyOptions> propertyOptionsColumns, DbDataReader reader)
-        {
-            return (from pro in classOptions.PropertyOptions
-                    join ca in propertyOptionsColumns on pro.ColumnAttribute.Name equals ca.ColumnAttribute.Name into leftJoin
-                    from left in leftJoin.DefaultIfEmpty()
-                    select
-                        new PropertyOptionsInEntity(pro,
-                        Nullable.GetUnderlyingType(pro.PropertyInfo.PropertyType) ?? pro.PropertyInfo.PropertyType,
-                        pro.PropertyInfo.PropertyType.IsValueType ? Activator.CreateInstance(pro.PropertyInfo.PropertyType) : null,
-                        left != null ? (int?)reader.GetOrdinal($"{classOptions.Type.Name}_{pro.ColumnAttribute.Name}") : null))
-                        .ToArray();
         }
     }
 }
