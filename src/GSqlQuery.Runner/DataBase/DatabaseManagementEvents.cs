@@ -3,6 +3,7 @@ using GSqlQuery.Runner.Transforms;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 
@@ -22,24 +23,26 @@ namespace GSqlQuery
             Debug.WriteLine("Message: {0}, Param {1}", message, param);
         }
 
-        public virtual ITransformTo<T> GetTransformTo<T>(ClassOptions classOptions)
+        public virtual ITransformTo<T, TDbDataReader> GetTransformTo<T, TDbDataReader>(ClassOptions classOptions)
            where T : class
+            where TDbDataReader : DbDataReader
         {
             Type type = typeof(T);
+            Type gericDefinition = type.IsGenericType ? type.GetGenericTypeDefinition() : null;
 
-            if (type.IsGenericType &&
-                (_typeJoinTowTable == type.GetGenericTypeDefinition() ||
-                _typeJoinThreeTable == type.GetGenericTypeDefinition()))
+            if (gericDefinition != null &&
+                (_typeJoinTowTable == gericDefinition ||
+                _typeJoinThreeTable == gericDefinition))
             {
-                return new JoinTransformTo<T>(classOptions.PropertyOptions.Count(), this);
+                return new JoinTransformTo<T, TDbDataReader>(classOptions.PropertyOptions.Count(), this);
             }
             else if (!classOptions.IsConstructorByParam)
             {
-                return new TransformToByField<T>(classOptions.PropertyOptions.Count());
+                return new TransformToByField<T, TDbDataReader>(classOptions.PropertyOptions.Count());
             }
             else
             {
-                return new TransformToByConstructor<T>(classOptions.PropertyOptions.Count());
+                return new TransformToByConstructor<T, TDbDataReader>(classOptions.PropertyOptions.Count());
             }
         }
     }

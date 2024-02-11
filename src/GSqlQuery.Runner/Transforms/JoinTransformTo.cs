@@ -4,11 +4,12 @@ using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using GSqlQuery.Extensions; 
 
 namespace GSqlQuery.Runner.Transforms
 {
-    internal class JoinTransformTo<T> : TransformTo<T> where T : class
+    internal class JoinTransformTo<T, TDbDataReader> : TransformTo<T, TDbDataReader>
+        where T : class
+        where TDbDataReader : DbDataReader
     {
         private class JoinClassOptions
         {
@@ -26,7 +27,7 @@ namespace GSqlQuery.Runner.Transforms
         }
 
         private readonly JoinClassOptions[] _joinClassOptions;
-        private readonly ITransformTo<T> _transformTo;
+        private readonly ITransformTo<T, TDbDataReader> _transformTo;
         private readonly DatabaseManagementEvents _events;
 
         public JoinTransformTo(int numColumns, DatabaseManagementEvents events) : base(numColumns)
@@ -42,11 +43,11 @@ namespace GSqlQuery.Runner.Transforms
 
             if (!_classOptions.IsConstructorByParam)
             {
-                _transformTo = new TransformToByField<T>(_classOptions.PropertyOptions.Count());
+                _transformTo = new TransformToByField<T, TDbDataReader>(_classOptions.PropertyOptions.Count());
             }
             else
             {
-                _transformTo = new TransformToByConstructor<T>(_classOptions.PropertyOptions.Count());
+                _transformTo = new TransformToByConstructor<T, TDbDataReader>(_classOptions.PropertyOptions.Count());
             }
         }
 
@@ -60,30 +61,11 @@ namespace GSqlQuery.Runner.Transforms
                         new PropertyOptionsInEntity(pro,
                         Nullable.GetUnderlyingType(pro.PropertyInfo.PropertyType) ?? pro.PropertyInfo.PropertyType,
                         pro.PropertyInfo.PropertyType.IsValueType ? Activator.CreateInstance(pro.PropertyInfo.PropertyType) : null,
-                        left != null ? (int?)reader.GetOrdinal($"{classOptions.Type.Name}_{pro.ColumnAttribute.Name}") : null))
+                        left != null ? reader.GetOrdinal($"{classOptions.Type.Name}_{pro.ColumnAttribute.Name}") : null))
                         .ToArray();
         }
 
-        public override T Generate(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader)
-        {
-            Queue<PropertyOptionsInEntity> tmpCol = new Queue<PropertyOptionsInEntity>();
-
-            foreach (JoinClassOptions item in _joinClassOptions)
-            {
-                object a  = item.MethodInfo.Invoke(item.TransformTo,new object[] { item.PropertyOptionsInEntities, reader });
-
-                tmpCol.Enqueue(new PropertyOptionsInEntity(item.PropertyOptions, item.PropertyOptions.GetType(), a, null));
-            }
-
-            return _transformTo.Generate(tmpCol, reader);
-        }
-
-        public override Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader)
-        {
-            return Task.FromResult(Generate(columns, reader));
-        }
-
-        public override IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, DbDataReader reader)
+        public override IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader)
         {
             List<PropertyOptionsInEntity> result = [];
 
@@ -95,12 +77,31 @@ namespace GSqlQuery.Runner.Transforms
                 item.PropertyOptionsInEntities = GetPropertiesJoin(item.ClassOptions, tmpColumns, reader);
                 result.AddRange(item.PropertyOptionsInEntities);
 
-                MethodInfo methodInfo = _events.GetType().GetMethod("GetTransformTo").MakeGenericMethod(item.ClassOptions.Type);
-                item.TransformTo = methodInfo?.Invoke(_events, new object[] { item.ClassOptions });
+                MethodInfo methodInfo = _events.GetType().GetMethod("GetTransformTo").MakeGenericMethod(item.ClassOptions.Type, reader.GetType());
+                item.TransformTo = methodInfo?.Invoke(_events, [item.ClassOptions]);
                 item.MethodInfo = item.TransformTo.GetType().GetMethod("Generate");
             }
 
             return result;
+        }
+
+        public override T Generate(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader)
+        {
+            Queue<PropertyOptionsInEntity> tmpCol = new Queue<PropertyOptionsInEntity>();
+
+            foreach (JoinClassOptions item in _joinClassOptions)
+            {
+                object a = item.MethodInfo.Invoke(item.TransformTo, [item.PropertyOptionsInEntities, reader]);
+
+                tmpCol.Enqueue(new PropertyOptionsInEntity(item.PropertyOptions, item.PropertyOptions.GetType(), a, null));
+            }
+
+            return _transformTo.Generate(tmpCol, reader);
+        }
+
+        public override Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader)
+        {
+            return Task.FromResult(Generate(columns, reader));
         }
     }
 }

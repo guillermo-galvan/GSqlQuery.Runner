@@ -6,17 +6,33 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner
 {
-    public abstract class Connection
+    public abstract class Connection<TItransaccion, TDbConnection, TDbTransaction, TDbCommand>(TDbConnection connection) :
+        IConnection<TItransaccion, TDbCommand>, IDisposable
+        where TItransaccion : ITransaction 
+        where TDbConnection : DbConnection
+        where TDbTransaction : DbTransaction
+        where TDbCommand : DbCommand
     {
-        protected readonly DbConnection _connection;
-        protected bool _disposed = false;
-        protected ITransaction _transaction;
+        protected TDbConnection _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+        protected TItransaccion _transaction;
 
         public ConnectionState State => _connection == null ? ConnectionState.Broken : _connection.State;
 
-        public Connection(DbConnection connection)
+        public virtual TDbCommand GetDbCommand()
         {
-            _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            TDbCommand result = (TDbCommand)_connection.CreateCommand();
+
+            if (_transaction != null)
+            {
+                result.Transaction = (TDbTransaction)_transaction.Transaction;
+            }
+
+            return result;
+        }
+
+        object IConnection.GetDbCommand()
+        {
+            return GetDbCommand();
         }
 
         public virtual void Close()
@@ -36,18 +52,6 @@ namespace GSqlQuery.Runner
 #endif
         }
 
-        public virtual DbCommand GetDbCommand()
-        {
-            DbCommand result = _connection.CreateCommand();
-
-            if (_transaction != null)
-            {
-                result.Transaction = _transaction.Transaction;
-            }
-
-            return _connection.CreateCommand();
-        }
-
         public virtual Task OpenAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -59,10 +63,52 @@ namespace GSqlQuery.Runner
             _connection.Open();
         }
 
-        protected ITransaction SetTransaction(ITransaction transaction)
+        protected TItransaccion SetTransaction(TItransaccion transaction)
         {
             _transaction = transaction;
             return _transaction;
+        }
+
+        public virtual void RemoveTransaction(ITransaction transaction)
+        {
+            if(transaction.Equals(_transaction))
+            {
+                _transaction = default;
+                return;
+            }
+        }
+
+        public virtual void RemoveTransaction(TItransaccion transaction)
+        {
+            RemoveTransaction((ITransaction)transaction);
+        }
+
+        public abstract TItransaccion BeginTransaction();
+
+        public abstract TItransaccion BeginTransaction(IsolationLevel isolationLevel);
+
+        public abstract Task<TItransaccion> BeginTransactionAsync(CancellationToken cancellationToken = default);
+
+        public abstract Task<TItransaccion> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default);
+
+        ITransaction IConnection.BeginTransaction()
+        {
+            return BeginTransaction();
+        }
+
+        ITransaction IConnection.BeginTransaction(IsolationLevel isolationLevel)
+        {
+            return BeginTransaction(isolationLevel);
+        }
+
+        async Task<ITransaction> IConnection.BeginTransactionAsync(CancellationToken cancellationToken)
+        {
+            return await BeginTransactionAsync(cancellationToken);
+        }
+
+        async Task<ITransaction> IConnection.BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken)
+        {
+            return await BeginTransactionAsync(isolationLevel, cancellationToken);
         }
 
         public virtual void Dispose()
@@ -71,20 +117,15 @@ namespace GSqlQuery.Runner
             GC.SuppressFinalize(this);
         }
 
-        public void RemoveTransaction(ITransaction transaction)
-        {
-            _transaction = null;
-        }
-
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (disposing)
             {
-                if (disposing)
+                if (_connection != null)
                 {
-                    _connection?.Dispose();
+                    _connection.Dispose();
+                    _connection = null;
                 }
-                _disposed = true;
             }
         }
 

@@ -4,24 +4,11 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner.Transforms
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal class TransformToByField<T> : TransformTo<T> where T : class
+    internal class TransformToByField<T, TDbDataReader>(int numColumns) : TransformTo<T, TDbDataReader>(numColumns) 
+        where T : class
+        where TDbDataReader : DbDataReader
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="numColumns"></param>
-        public TransformToByField(int numColumns) : base(numColumns)
-        { }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public override T Generate(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader)
+        public override T Generate(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader)
         {
             object result = _classOptions.ConstructorInfo.Invoke(null);
 
@@ -46,7 +33,7 @@ namespace GSqlQuery.Runner.Transforms
             return (T)result;
         }
 
-        public override Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader)
+        public override Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader)
         {
             return Task.FromResult(Generate(columns, reader));
         }

@@ -9,23 +9,27 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner
 {
-    public abstract class DatabaseManagement : IDatabaseManagement<IConnection>
+    public abstract class DatabaseManagement<TIConnection, TITransaction, TDbCommand, TDbTransaction, TDbDataReader>(string connectionString, DatabaseManagementEvents events) 
+        : IDatabaseManagement<TIConnection>
+        where TIConnection : IConnection<TITransaction,TDbCommand>
+        where TITransaction : ITransaction<TIConnection, TDbTransaction>
+        where TDbCommand : DbCommand
+        where TDbDataReader : DbDataReader
+        where TDbTransaction : DbTransaction
     {
-        protected readonly string _connectionString;
+        protected readonly string _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
 
-        public DatabaseManagementEvents Events { get; set; }
+        public DatabaseManagementEvents Events { get; set; } = events ?? throw new ArgumentNullException(nameof(events));
 
         public string ConnectionString => _connectionString;
 
-        public DatabaseManagement(string connectionString, DatabaseManagementEvents events)
-        {
-            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-            Events = events ?? throw new ArgumentNullException(nameof(events));
-        }
+        public abstract TIConnection GetConnection();
 
-        internal DbCommand CreateCommand(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
+        public abstract Task<TIConnection> GetConnectionAsync(CancellationToken cancellationToken = default);
+
+        internal static TDbCommand CreateCommand(TIConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
         {
-            DbCommand command = connection.GetDbCommand();
+            TDbCommand command = connection.GetDbCommand();
             command.CommandText = query.Text;
 
             if (parameters != null)
@@ -39,9 +43,9 @@ namespace GSqlQuery.Runner
             return command;
         }
 
-        public int ExecuteNonQuery(IQuery query, IEnumerable<IDataParameter> parameters)
+        public virtual int ExecuteNonQuery(IQuery query, IEnumerable<IDataParameter> parameters)
         {
-            using (IConnection connection = GetConnection())
+            using (TIConnection connection = GetConnection())
             {
                 try
                 {
@@ -54,22 +58,22 @@ namespace GSqlQuery.Runner
             }
         }
 
-        public int ExecuteNonQuery(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
+        public virtual int ExecuteNonQuery(TIConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
         {
             if (Events.IsTraceActive)
             {
                 Events.WriteTrace("ExecuteNonQuery Query: {@Text} Parameters: {@parameters}", [query.Text, parameters]);
             }
                 
-            using (DbCommand command = CreateCommand(connection, query, parameters))
+            using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 return command.ExecuteNonQuery();
             }
         }
 
-        public async Task<int> ExecuteNonQueryAsync(IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
+        public virtual async Task<int> ExecuteNonQueryAsync(IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
         {
-            using (IConnection connection = await GetConnectionAsync(cancellationToken).ConfigureAwait(false))
+            using (TIConnection connection = await GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
                 try
                 {
@@ -82,7 +86,7 @@ namespace GSqlQuery.Runner
             }
         }
 
-        public Task<int> ExecuteNonQueryAsync(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
+        public virtual Task<int> ExecuteNonQueryAsync(TIConnection connection, IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (Events.IsTraceActive)
@@ -90,16 +94,16 @@ namespace GSqlQuery.Runner
                 Events.WriteTrace("ExecuteNonQueryAsync Query: {@Text} Parameters: {@parameters}",[query.Text, parameters]);
             }
                 
-            using (DbCommand command = CreateCommand(connection, query, parameters))
+            using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 return command.ExecuteNonQueryAsync(cancellationToken);
             }
         }
 
-        public IEnumerable<T> ExecuteReader<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
+        public virtual IEnumerable<T> ExecuteReader<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
             where T : class
         {
-            using (IConnection connection = GetConnection())
+            using (TIConnection connection = GetConnection())
             {
                 try
                 {
@@ -112,7 +116,7 @@ namespace GSqlQuery.Runner
             }
         }
 
-        public IEnumerable<T> ExecuteReader<T>(IConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
+        public virtual IEnumerable<T> ExecuteReader<T>(TIConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
             where T : class
         {
             if (Events.IsTraceActive)
@@ -120,12 +124,12 @@ namespace GSqlQuery.Runner
                 Events.WriteTrace("ExecuteReader Type: {@FullName} Query: {@Text} Parameters: {@parameters}", [typeof(T).FullName, query.Text, parameters]);
             }
             ClassOptions classOptions = ClassOptionsFactory.GetClassOptions(typeof(T));
-            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(classOptions);
+            ITransformTo<T, TDbDataReader> transformToEntity = Events.GetTransformTo<T, TDbDataReader>(classOptions);
             Queue<T> result = new Queue<T>();
 
-            using (DbCommand command = CreateCommand(connection, query, parameters))
+            using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
-                using (DbDataReader reader = command.ExecuteReader())
+                using (TDbDataReader reader = (TDbDataReader)command.ExecuteReader())
                 {
                     IEnumerable<PropertyOptionsInEntity> columns = transformToEntity.GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
 
@@ -139,9 +143,9 @@ namespace GSqlQuery.Runner
             return result;
         }
 
-        public async Task<IEnumerable<T>> ExecuteReaderAsync<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class
+        public virtual async Task<IEnumerable<T>> ExecuteReaderAsync<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class
         {
-            using (IConnection connection = await GetConnectionAsync(cancellationToken).ConfigureAwait(false))
+            using (TIConnection connection = await GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
                 try
                 {
@@ -154,7 +158,7 @@ namespace GSqlQuery.Runner
             }
         }
 
-        public async Task<IEnumerable<T>> ExecuteReaderAsync<T>(IConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class
+        public virtual async Task<IEnumerable<T>> ExecuteReaderAsync<T>(TIConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class
         {
             cancellationToken.ThrowIfCancellationRequested();
               
@@ -164,7 +168,7 @@ namespace GSqlQuery.Runner
             }
 
             ClassOptions classOptions = ClassOptionsFactory.GetClassOptions(typeof(T));
-            ITransformTo<T> transformToEntity = Events.GetTransformTo<T>(classOptions);
+            ITransformTo<T, TDbDataReader> transformToEntity = Events.GetTransformTo<T, TDbDataReader>(classOptions);
 
 #if NET5_0_OR_GREATER
             IAsyncEnumerable<T> entities = ExecuteReaderAsync(connection, query, propertyOptions, parameters, transformToEntity, cancellationToken);
@@ -181,12 +185,12 @@ namespace GSqlQuery.Runner
         }
 
 #if NET5_0_OR_GREATER
-        private async IAsyncEnumerable<T> ExecuteReaderAsync<T>
-            (IConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, ITransformTo<T> transformToEntity, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class
+        private static async IAsyncEnumerable<T> ExecuteReaderAsync<T>
+            (TIConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, ITransformTo<T, TDbDataReader> transformToEntity, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class
         {
-            using (DbCommand command = CreateCommand(connection, query, parameters))
+            using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
-                using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                using (TDbDataReader reader = (TDbDataReader)await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
                 {
                     IEnumerable<PropertyOptionsInEntity> columns = transformToEntity.GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
 
@@ -199,11 +203,12 @@ namespace GSqlQuery.Runner
         }
 #else
         private async Task<IEnumerable<T>> ExecuteReaderAsync<T>
-                    (IConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, ITransformTo<T> transformToEntity, CancellationToken cancellationToken = default) where T : class
+                    (TIConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, 
+                    IEnumerable<IDataParameter> parameters, ITransformTo<T, TDbDataReader> transformToEntity, CancellationToken cancellationToken = default) where T : class
         {
-            using (DbCommand command = CreateCommand(connection, query, parameters))
+            using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
-                using (DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                using (TDbDataReader reader = (TDbDataReader)await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
                 {
                     Queue<T> result = new Queue<T>();
 
@@ -221,9 +226,9 @@ namespace GSqlQuery.Runner
         }
 #endif
 
-        public T ExecuteScalar<T>(IQuery query, IEnumerable<IDataParameter> parameters)
+        public virtual T ExecuteScalar<T>(IQuery query, IEnumerable<IDataParameter> parameters)
         {
-            using (IConnection connection = GetConnection())
+            using (TIConnection connection = GetConnection())
             {
                 try
                 {
@@ -236,23 +241,23 @@ namespace GSqlQuery.Runner
             }
         }
 
-        public T ExecuteScalar<T>(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
+        public virtual T ExecuteScalar<T>(TIConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
         {
             if (Events.IsTraceActive)
             {
                 Events.WriteTrace("ExecuteScalar Type: {@FullName} Query: {@Text} Parameters: {@parameters}", [typeof(T).FullName, query.Text, parameters]);
             }
                 
-            using (DbCommand command = CreateCommand(connection, query, parameters))
+            using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 object resultCommand = command.ExecuteScalar();
                 return (T)TransformTo.SwitchTypeValue(typeof(T), resultCommand);
             }
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
+        public virtual async Task<T> ExecuteScalarAsync<T>(IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
         {
-            using (IConnection connection = await GetConnectionAsync(cancellationToken).ConfigureAwait(false))
+            using (TIConnection connection = await GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
                 try
                 {
@@ -265,7 +270,7 @@ namespace GSqlQuery.Runner
             }
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(IConnection connection, IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
+        public virtual async Task<T> ExecuteScalarAsync<T>(TIConnection connection, IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -274,15 +279,11 @@ namespace GSqlQuery.Runner
                 Events.WriteTrace("ExecuteScalarAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}", [typeof(T).FullName, query.Text, parameters]);
             }
                 
-            using (DbCommand command = CreateCommand(connection, query, parameters))
+            using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 object resultCommand = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
                 return (T)TransformTo.SwitchTypeValue(typeof(T), resultCommand);
             }
         }
-
-        public abstract IConnection GetConnection();
-
-        public abstract Task<IConnection> GetConnectionAsync(CancellationToken cancellationToken = default);
     }
 }

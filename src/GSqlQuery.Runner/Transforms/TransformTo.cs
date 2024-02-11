@@ -27,19 +27,14 @@ namespace GSqlQuery.Runner.Transforms
         }
     }
 
-    public abstract class TransformTo<T> : ITransformTo<T> where T : class
+    public abstract class TransformTo<T, TDbDataReader>(int numColumns) : ITransformTo<T, TDbDataReader> 
+        where T : class
+        where TDbDataReader : DbDataReader
     {
-        protected readonly int _numColumns;
-        protected readonly ClassOptions _classOptions;
+        protected readonly int _numColumns = numColumns;
+        protected readonly ClassOptions _classOptions = ClassOptionsFactory.GetClassOptions(typeof(T));
 
-        public TransformTo(int numColumns)
-        {
-            _numColumns = numColumns;
-            _classOptions = ClassOptionsFactory.GetClassOptions(typeof(T));
-        }
-
-        protected IEnumerable<PropertyOptionsInEntity> GetProperties(IEnumerable<PropertyOptions> propertyOptions,
-            IEnumerable<PropertyOptions> propertyOptionsColumns, DbDataReader reader)
+        protected IEnumerable<PropertyOptionsInEntity> GetProperties(IEnumerable<PropertyOptions> propertyOptions, IEnumerable<PropertyOptions> propertyOptionsColumns, TDbDataReader reader)
         {
             return (from pro in propertyOptions
                     join ca in propertyOptionsColumns on pro.ColumnAttribute.Name equals ca.ColumnAttribute.Name into leftJoin
@@ -51,14 +46,14 @@ namespace GSqlQuery.Runner.Transforms
                         left != null ? reader.GetOrdinal(pro.ColumnAttribute.Name) : null)).ToArray();
         }
 
-        public virtual IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, DbDataReader reader)
+        public virtual IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity
+            (IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader)
         {
             return GetProperties(propertyOptions, query.Columns, reader);
         }
 
-        public abstract T Generate(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader);
+        public abstract T Generate(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader);
 
-        public abstract Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader);
-
+        public abstract Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader);
     }
 }

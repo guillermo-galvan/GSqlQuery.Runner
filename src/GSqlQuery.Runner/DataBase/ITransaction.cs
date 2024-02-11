@@ -12,7 +12,7 @@ namespace GSqlQuery.Runner
 
         IConnection Connection { get; }
 
-        DbTransaction Transaction { get; }
+        object Transaction { get; }
 
         void Commit();
 
@@ -21,5 +21,14 @@ namespace GSqlQuery.Runner
         Task CommitAsync(CancellationToken cancellationToken = default);
 
         Task RollbackAsync(CancellationToken cancellationToken = default);
+    }
+
+    public interface ITransaction<TIConnection, TDbTransaction> : ITransaction, IDisposable
+        where TIConnection : IConnection
+        where TDbTransaction : DbTransaction
+    {
+        new TDbTransaction Transaction { get; }
+
+        new TIConnection Connection { get; }
     }
 }

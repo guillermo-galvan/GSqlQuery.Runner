@@ -10,7 +10,7 @@ namespace GSqlQuery.Runner
     {
         ConnectionState State { get; }
 
-        DbCommand GetDbCommand();
+        object GetDbCommand();
 
         void Close();
 
@@ -25,5 +25,22 @@ namespace GSqlQuery.Runner
         Task<ITransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default);
 
         void RemoveTransaction(ITransaction transaction);
+    }
+
+    public interface IConnection<TITransaccion,TDbCommand> : IConnection, IDisposable
+        where TITransaccion: ITransaction
+        where TDbCommand : DbCommand
+    {
+        new TDbCommand GetDbCommand();
+
+        new TITransaccion BeginTransaction();
+
+        new TITransaccion BeginTransaction(IsolationLevel isolationLevel);
+
+        new Task<TITransaccion> BeginTransactionAsync(CancellationToken cancellationToken = default);
+
+        new Task<TITransaccion> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default);
+
+        void RemoveTransaction(TITransaccion transaction);
     }
 }
