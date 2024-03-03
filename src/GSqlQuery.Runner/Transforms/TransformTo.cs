@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner.Transforms
@@ -27,17 +28,18 @@ namespace GSqlQuery.Runner.Transforms
         }
     }
 
-    public abstract class TransformTo<T, TDbDataReader>(int numColumns) : ITransformTo<T, TDbDataReader> 
+    public abstract class TransformTo<T, TDbDataReader>(int numColumns) : ITransformTo<T, TDbDataReader>
         where T : class
         where TDbDataReader : DbDataReader
     {
         protected readonly int _numColumns = numColumns;
         protected readonly ClassOptions _classOptions = ClassOptionsFactory.GetClassOptions(typeof(T));
 
-        protected IEnumerable<PropertyOptionsInEntity> GetProperties(IEnumerable<PropertyOptions> propertyOptions, IEnumerable<PropertyOptions> propertyOptionsColumns, TDbDataReader reader)
+        protected virtual IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity
+            (IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader)
         {
             return (from pro in propertyOptions
-                    join ca in propertyOptionsColumns on pro.ColumnAttribute.Name equals ca.ColumnAttribute.Name into leftJoin
+                    join ca in query.Columns on pro.ColumnAttribute.Name equals ca.ColumnAttribute.Name into leftJoin
                     from left in leftJoin.DefaultIfEmpty()
                     select
                         new PropertyOptionsInEntity(pro,
@@ -46,14 +48,68 @@ namespace GSqlQuery.Runner.Transforms
                         left != null ? reader.GetOrdinal(pro.ColumnAttribute.Name) : null)).ToArray();
         }
 
-        public virtual IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity
-            (IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader)
+        public virtual object GetValue(int ordinal, TDbDataReader reader, Type propertyType)
         {
-            return GetProperties(propertyOptions, query.Columns, reader);
+            return TransformTo.SwitchTypeValue(propertyType, reader.GetValue(ordinal));
         }
 
-        public abstract T Generate(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader);
+        public virtual IEnumerable<T> Transform(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader)
+        {
+            IEnumerable<PropertyOptionsInEntity> columns = GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
+            Queue<T> result = new Queue<T>();
+            Queue<PropertyValue> propertyValues = new Queue<PropertyValue>();
 
-        public abstract Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader);
+            while (reader.Read())
+            {
+                foreach (PropertyOptionsInEntity item in columns)
+                {
+                    if (item.Ordinal.HasValue)
+                    {
+                        propertyValues.Enqueue(new PropertyValue(item.Property, GetValue(item.Ordinal.Value, reader, item.Type)));
+                    }
+                    else
+                    {
+                        propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
+                    }
+                }
+
+                T tmp = CreateEntity(propertyValues);
+                propertyValues.Clear();
+                result.Enqueue(tmp);
+            }
+
+            return result;
+        }
+
+        public async virtual Task<IEnumerable<T>> TransformAsync(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            IEnumerable<PropertyOptionsInEntity> columns = GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
+            Queue<T> result = new Queue<T>();
+            Queue<PropertyValue> propertyValues = new Queue<PropertyValue>();
+
+            while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            {
+                foreach (PropertyOptionsInEntity item in columns)
+                {
+                    if (item.Ordinal.HasValue)
+                    {
+                        propertyValues.Enqueue(new PropertyValue(item.Property, GetValue(item.Ordinal.Value, reader, item.Type)));
+                    }
+                    else
+                    {
+                        propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
+                    }
+                }
+
+                T tmp = CreateEntity(propertyValues);
+                propertyValues.Clear();
+                result.Enqueue(tmp);
+            }
+
+            return result;
+        }
+
+        public abstract T CreateEntity(IEnumerable<PropertyValue> propertyValues);
     }
 }

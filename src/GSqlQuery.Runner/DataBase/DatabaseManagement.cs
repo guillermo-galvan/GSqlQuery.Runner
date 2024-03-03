@@ -125,22 +125,14 @@ namespace GSqlQuery.Runner
             }
             ClassOptions classOptions = ClassOptionsFactory.GetClassOptions(typeof(T));
             ITransformTo<T, TDbDataReader> transformToEntity = Events.GetTransformTo<T, TDbDataReader>(classOptions);
-            Queue<T> result = new Queue<T>();
 
             using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 using (TDbDataReader reader = (TDbDataReader)command.ExecuteReader())
                 {
-                    IEnumerable<PropertyOptionsInEntity> columns = transformToEntity.GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
-
-                    while (reader.Read())
-                    {
-                        T tmp = transformToEntity.Generate(columns, reader);
-                        result.Enqueue(tmp);
-                    }
+                    return transformToEntity.Transform(propertyOptions, query, reader);
                 }
             }
-            return result;
         }
 
         public virtual async Task<IEnumerable<T>> ExecuteReaderAsync<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class
@@ -170,61 +162,14 @@ namespace GSqlQuery.Runner
             ClassOptions classOptions = ClassOptionsFactory.GetClassOptions(typeof(T));
             ITransformTo<T, TDbDataReader> transformToEntity = Events.GetTransformTo<T, TDbDataReader>(classOptions);
 
-#if NET5_0_OR_GREATER
-            IAsyncEnumerable<T> entities = ExecuteReaderAsync(connection, query, propertyOptions, parameters, transformToEntity, cancellationToken);
-            Queue<T> result = new Queue<T>();
-
-            await foreach (T item in entities)
-            {
-                result.Enqueue(item);
-            }
-            return result;
-#else
-            return await ExecuteReaderAsync(connection, query, propertyOptions, parameters, transformToEntity, cancellationToken).ConfigureAwait(false);
-#endif
-        }
-
-#if NET5_0_OR_GREATER
-        private static async IAsyncEnumerable<T> ExecuteReaderAsync<T>
-            (TIConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, ITransformTo<T, TDbDataReader> transformToEntity, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class
-        {
             using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 using (TDbDataReader reader = (TDbDataReader)await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    IEnumerable<PropertyOptionsInEntity> columns = transformToEntity.GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
-
-                    while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-                    {
-                        yield return await transformToEntity.GenerateAsync(columns, reader);
-                    }
+                    return await transformToEntity.TransformAsync(propertyOptions, query, reader, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
-#else
-        private async Task<IEnumerable<T>> ExecuteReaderAsync<T>
-                    (TIConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, 
-                    IEnumerable<IDataParameter> parameters, ITransformTo<T, TDbDataReader> transformToEntity, CancellationToken cancellationToken = default) where T : class
-        {
-            using (TDbCommand command = CreateCommand(connection, query, parameters))
-            {
-                using (TDbDataReader reader = (TDbDataReader)await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    Queue<T> result = new Queue<T>();
-
-                    IEnumerable<PropertyOptionsInEntity> columns = transformToEntity.GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
-
-                    while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-                    {
-                        T entity = await transformToEntity.GenerateAsync(columns, reader);
-                        result.Enqueue(entity);
-                    }
-
-                    return result;
-                }
-            }
-        }
-#endif
 
         public virtual T ExecuteScalar<T>(IQuery query, IEnumerable<IDataParameter> parameters)
         {

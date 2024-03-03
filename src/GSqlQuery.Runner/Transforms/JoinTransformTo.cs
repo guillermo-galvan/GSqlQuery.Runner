@@ -3,30 +3,49 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner.Transforms
 {
+    internal class JoinClassOptions<TDbDataReader>
+            where TDbDataReader : DbDataReader
+    {
+        private object _class;
+        private ITransformTo<TDbDataReader> _transformTo;
+
+        public PropertyOptions PropertyOptions { get; set; }
+
+        public ClassOptions ClassOptions { get; set; }
+
+        public IEnumerable<PropertyOptionsInEntity> PropertyOptionsInEntities { get; set; }
+
+        public MethodInfo MethodInfo { get; set; }
+
+        public object Class
+        {
+            get { return _class; }
+            set
+            {
+                _class = value;
+
+                if (_class is ITransformTo<TDbDataReader> tmp)
+                {
+                    _transformTo = tmp;
+                }
+            }
+        }
+
+        public ITransformTo<TDbDataReader> Transform => _transformTo;
+
+        public int Position { get; set; }
+    }
+
     internal class JoinTransformTo<T, TDbDataReader> : TransformTo<T, TDbDataReader>
         where T : class
         where TDbDataReader : DbDataReader
     {
-        private class JoinClassOptions
-        {
-            public PropertyOptions PropertyOptions { get; set; }
-
-            public ClassOptions ClassOptions { get; set; }
-
-            public IEnumerable<PropertyOptionsInEntity> PropertyOptionsInEntities { get; set; }
-
-            public MethodInfo MethodInfo { get; set; }
-
-            public object TransformTo { get; set; }
-
-            public int Position { get; set; }
-        }
-
-        private readonly JoinClassOptions[] _joinClassOptions;
+        private readonly JoinClassOptions<TDbDataReader>[] _joinClassOptions;
         private readonly ITransformTo<T, TDbDataReader> _transformTo;
         private readonly DatabaseManagementEvents _events;
 
@@ -34,7 +53,7 @@ namespace GSqlQuery.Runner.Transforms
         {
             int position = 0;
             _events = events;
-            _joinClassOptions = _classOptions.PropertyOptions.Where(x => x.PropertyInfo.PropertyType.IsClass).Select(x => new JoinClassOptions() 
+            _joinClassOptions = _classOptions.PropertyOptions.Where(x => x.PropertyInfo.PropertyType.IsClass).Select(x => new JoinClassOptions<TDbDataReader>() 
             {
                 PropertyOptions = x,
                 ClassOptions = ClassOptionsFactory.GetClassOptions(x.PropertyInfo.PropertyType),
@@ -51,7 +70,7 @@ namespace GSqlQuery.Runner.Transforms
             }
         }
 
-        protected IEnumerable<PropertyOptionsInEntity> GetPropertiesJoin(ClassOptions classOptions,
+        protected static IEnumerable<PropertyOptionsInEntity> GetPropertiesJoin(ClassOptions classOptions,
             IEnumerable<PropertyOptions> propertyOptionsColumns, DbDataReader reader)
         {
             return (from pro in classOptions.PropertyOptions
@@ -65,43 +84,100 @@ namespace GSqlQuery.Runner.Transforms
                         .ToArray();
         }
 
-        public override IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader)
+        protected override IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader)
         {
             List<PropertyOptionsInEntity> result = [];
 
             IEnumerable<IGrouping<string, PropertyOptions>> columnGroup = query.Columns.GroupBy(x => x.TableAttribute.Name);
 
-            foreach (JoinClassOptions item in _joinClassOptions)
+            foreach (JoinClassOptions<TDbDataReader> item in _joinClassOptions)
             {
                 IGrouping<string, PropertyOptions> tmpColumns = columnGroup.First(x => x.Key == item.ClassOptions.Table.Name);
                 item.PropertyOptionsInEntities = GetPropertiesJoin(item.ClassOptions, tmpColumns, reader);
                 result.AddRange(item.PropertyOptionsInEntities);
 
                 MethodInfo methodInfo = _events.GetType().GetMethod("GetTransformTo").MakeGenericMethod(item.ClassOptions.Type, reader.GetType());
-                item.TransformTo = methodInfo?.Invoke(_events, [item.ClassOptions]);
-                item.MethodInfo = item.TransformTo.GetType().GetMethod("Generate");
+                item.Class = methodInfo?.Invoke(_events, [item.ClassOptions]);
+                item.MethodInfo = item.Class.GetType().GetMethod("CreateEntity");
             }
 
             return result;
         }
 
-        public override T Generate(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader)
+        public override IEnumerable<T> Transform(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader)
         {
-            Queue<PropertyOptionsInEntity> tmpCol = new Queue<PropertyOptionsInEntity>();
+            _ = GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
+            Queue<T> result = new Queue<T>();
+            Queue<PropertyValue> propertyValues = new Queue<PropertyValue>();
+            Queue<PropertyValue> jointPropertyValues = new Queue<PropertyValue>();
 
-            foreach (JoinClassOptions item in _joinClassOptions)
+            while (reader.Read())
             {
-                object a = item.MethodInfo.Invoke(item.TransformTo, [item.PropertyOptionsInEntities, reader]);
+                foreach (JoinClassOptions<TDbDataReader> joinClassOptions in _joinClassOptions)
+                {
+                    foreach (PropertyOptionsInEntity item in joinClassOptions.PropertyOptionsInEntities)
+                    {
+                        if (item.Ordinal.HasValue)
+                        {
+                            propertyValues.Enqueue(new PropertyValue(item.Property, joinClassOptions.Transform.GetValue(item.Ordinal.Value, reader, item.Type)));
+                        }
+                        else
+                        {
+                            propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
+                        }
+                    }
+                    object a = joinClassOptions.MethodInfo.Invoke(joinClassOptions.Class, [propertyValues]);
+                    propertyValues.Clear();
+                    jointPropertyValues.Enqueue(new PropertyValue(joinClassOptions.PropertyOptions, a));
+                }
 
-                tmpCol.Enqueue(new PropertyOptionsInEntity(item.PropertyOptions, item.PropertyOptions.GetType(), a, null));
+                T tmp = CreateEntity(jointPropertyValues);
+                jointPropertyValues.Clear();
+                result.Enqueue(tmp);
             }
 
-            return _transformTo.Generate(tmpCol, reader);
+            return result;
         }
 
-        public override Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader)
+        public override async Task<IEnumerable<T>> TransformAsync(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(Generate(columns, reader));
+            cancellationToken.ThrowIfCancellationRequested();
+            _ = GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
+            Queue<T> result = new Queue<T>();
+            Queue<PropertyValue> propertyValues = new Queue<PropertyValue>();
+            Queue<PropertyValue> jointPropertyValues = new Queue<PropertyValue>();
+
+            while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            {
+                foreach (JoinClassOptions<TDbDataReader> joinClassOptions in _joinClassOptions)
+                {
+                    foreach (PropertyOptionsInEntity item in joinClassOptions.PropertyOptionsInEntities)
+                    {
+                        if (item.Ordinal.HasValue)
+                        {
+                            propertyValues.Enqueue(new PropertyValue(item.Property, joinClassOptions.Transform.GetValue(item.Ordinal.Value, reader, item.Type)));
+                        }
+                        else
+                        {
+                            propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
+                        }
+                    }
+                    object a = joinClassOptions.MethodInfo.Invoke(joinClassOptions.Class, [propertyValues]);
+                    propertyValues.Clear();
+                    jointPropertyValues.Enqueue(new PropertyValue(joinClassOptions.PropertyOptions, a));
+                }
+
+                T tmp = CreateEntity(jointPropertyValues);
+                jointPropertyValues.Clear();
+                result.Enqueue(tmp);
+            }
+
+            return result;
+        }
+
+        public override T CreateEntity(IEnumerable<PropertyValue> propertyValues)
+        {
+            return _transformTo.CreateEntity(propertyValues);
         }
     }
 }

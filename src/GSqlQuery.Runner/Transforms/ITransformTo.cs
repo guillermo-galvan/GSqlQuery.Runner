@@ -1,25 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ITransformTo<T, TDbDataReader> 
+
+    public interface ITransformTo<TDbDataReader>
+        where TDbDataReader : DbDataReader
+    {
+        object GetValue(int ordinal, TDbDataReader reader, Type propertyType);
+    }
+
+    public interface ITransformTo<T, TDbDataReader> : ITransformTo<TDbDataReader>
         where T : class
         where TDbDataReader : DbDataReader
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        T Generate(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader);
+        T CreateEntity(IEnumerable<PropertyValue> propertyValues);
 
-        Task<T> GenerateAsync(IEnumerable<PropertyOptionsInEntity> columns, TDbDataReader reader);
+        IEnumerable<T> Transform(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader);
 
-        IEnumerable<PropertyOptionsInEntity> GetOrdinalPropertiesInEntity(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader);
+        Task<IEnumerable<T>> TransformAsync(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader, CancellationToken cancellationToken = default);
     }
 }
