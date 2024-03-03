@@ -104,6 +104,31 @@ namespace GSqlQuery.Runner.Transforms
             return result;
         }
 
+        private void Fill(TDbDataReader reader, Queue<PropertyValue> propertyValues, Queue<PropertyValue> jointPropertyValues, Queue<T> result)
+        {
+            foreach (JoinClassOptions<TDbDataReader> joinClassOptions in _joinClassOptions)
+            {
+                foreach (PropertyOptionsInEntity item in joinClassOptions.PropertyOptionsInEntities)
+                {
+                    if (item.Ordinal.HasValue)
+                    {
+                        propertyValues.Enqueue(new PropertyValue(item.Property, joinClassOptions.Transform.GetValue(item.Ordinal.Value, reader, item.Type)));
+                    }
+                    else
+                    {
+                        propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
+                    }
+                }
+                object a = joinClassOptions.MethodInfo.Invoke(joinClassOptions.Class, [propertyValues]);
+                propertyValues.Clear();
+                jointPropertyValues.Enqueue(new PropertyValue(joinClassOptions.PropertyOptions, a));
+            }
+
+            T tmp = CreateEntity(jointPropertyValues);
+            jointPropertyValues.Clear();
+            result.Enqueue(tmp);
+        }
+
         public override IEnumerable<T> Transform(IEnumerable<PropertyOptions> propertyOptions, IQuery<T> query, TDbDataReader reader)
         {
             _ = GetOrdinalPropertiesInEntity(propertyOptions, query, reader);
@@ -113,27 +138,7 @@ namespace GSqlQuery.Runner.Transforms
 
             while (reader.Read())
             {
-                foreach (JoinClassOptions<TDbDataReader> joinClassOptions in _joinClassOptions)
-                {
-                    foreach (PropertyOptionsInEntity item in joinClassOptions.PropertyOptionsInEntities)
-                    {
-                        if (item.Ordinal.HasValue)
-                        {
-                            propertyValues.Enqueue(new PropertyValue(item.Property, joinClassOptions.Transform.GetValue(item.Ordinal.Value, reader, item.Type)));
-                        }
-                        else
-                        {
-                            propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
-                        }
-                    }
-                    object a = joinClassOptions.MethodInfo.Invoke(joinClassOptions.Class, [propertyValues]);
-                    propertyValues.Clear();
-                    jointPropertyValues.Enqueue(new PropertyValue(joinClassOptions.PropertyOptions, a));
-                }
-
-                T tmp = CreateEntity(jointPropertyValues);
-                jointPropertyValues.Clear();
-                result.Enqueue(tmp);
+                Fill(reader, propertyValues, jointPropertyValues, result);
             }
 
             return result;
@@ -149,27 +154,7 @@ namespace GSqlQuery.Runner.Transforms
 
             while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
-                foreach (JoinClassOptions<TDbDataReader> joinClassOptions in _joinClassOptions)
-                {
-                    foreach (PropertyOptionsInEntity item in joinClassOptions.PropertyOptionsInEntities)
-                    {
-                        if (item.Ordinal.HasValue)
-                        {
-                            propertyValues.Enqueue(new PropertyValue(item.Property, joinClassOptions.Transform.GetValue(item.Ordinal.Value, reader, item.Type)));
-                        }
-                        else
-                        {
-                            propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
-                        }
-                    }
-                    object a = joinClassOptions.MethodInfo.Invoke(joinClassOptions.Class, [propertyValues]);
-                    propertyValues.Clear();
-                    jointPropertyValues.Enqueue(new PropertyValue(joinClassOptions.PropertyOptions, a));
-                }
-
-                T tmp = CreateEntity(jointPropertyValues);
-                jointPropertyValues.Clear();
-                result.Enqueue(tmp);
+                Fill(reader, propertyValues, jointPropertyValues, result);
             }
 
             return result;

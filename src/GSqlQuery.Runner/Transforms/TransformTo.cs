@@ -48,6 +48,25 @@ namespace GSqlQuery.Runner.Transforms
                         left != null ? reader.GetOrdinal(pro.ColumnAttribute.Name) : null)).ToArray();
         }
 
+        private void Fill(TDbDataReader reader, IEnumerable<PropertyOptionsInEntity> columns, Queue<PropertyValue> propertyValues, Queue<T> result)
+        {
+            foreach (PropertyOptionsInEntity item in columns)
+            {
+                if (item.Ordinal.HasValue)
+                {
+                    propertyValues.Enqueue(new PropertyValue(item.Property, GetValue(item.Ordinal.Value, reader, item.Type)));
+                }
+                else
+                {
+                    propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
+                }
+            }
+
+            T tmp = CreateEntity(propertyValues);
+            propertyValues.Clear();
+            result.Enqueue(tmp);
+        }
+
         public virtual object GetValue(int ordinal, TDbDataReader reader, Type propertyType)
         {
             return TransformTo.SwitchTypeValue(propertyType, reader.GetValue(ordinal));
@@ -61,21 +80,7 @@ namespace GSqlQuery.Runner.Transforms
 
             while (reader.Read())
             {
-                foreach (PropertyOptionsInEntity item in columns)
-                {
-                    if (item.Ordinal.HasValue)
-                    {
-                        propertyValues.Enqueue(new PropertyValue(item.Property, GetValue(item.Ordinal.Value, reader, item.Type)));
-                    }
-                    else
-                    {
-                        propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
-                    }
-                }
-
-                T tmp = CreateEntity(propertyValues);
-                propertyValues.Clear();
-                result.Enqueue(tmp);
+                Fill(reader, columns, propertyValues, result);
             }
 
             return result;
@@ -90,21 +95,7 @@ namespace GSqlQuery.Runner.Transforms
 
             while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
-                foreach (PropertyOptionsInEntity item in columns)
-                {
-                    if (item.Ordinal.HasValue)
-                    {
-                        propertyValues.Enqueue(new PropertyValue(item.Property, GetValue(item.Ordinal.Value, reader, item.Type)));
-                    }
-                    else
-                    {
-                        propertyValues.Enqueue(new PropertyValue(item.Property, item.DefaultValue));
-                    }
-                }
-
-                T tmp = CreateEntity(propertyValues);
-                propertyValues.Clear();
-                result.Enqueue(tmp);
+                Fill(reader, columns, propertyValues, result);
             }
 
             return result;
