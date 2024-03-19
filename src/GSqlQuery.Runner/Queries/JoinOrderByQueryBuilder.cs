@@ -10,26 +10,20 @@ namespace GSqlQuery.Runner.Queries
         IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
         where T : class
     {
-        new public ConnectionOptions<TDbConnection> Options { get; }
-
         public JoinOrderByQueryBuilder(ClassOptionsTupla<IEnumerable<MemberInfo>> selectMember, OrderBy orderBy,
             IQueryBuilderWithWhere<T, JoinQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder)
-            : base(selectMember, orderBy, queryBuilder, queryBuilder.Options.Formats)
-        {
-            Options = queryBuilder.Options;
-        }
+            : base(selectMember, orderBy, queryBuilder, queryBuilder.QueryOptions)
+        {}
 
         public JoinOrderByQueryBuilder(ClassOptionsTupla<IEnumerable<MemberInfo>> selectMember, OrderBy orderBy,
-           IAndOr<T, JoinQuery<T, TDbConnection>> andOr, ConnectionOptions<TDbConnection> options)
-           : base(selectMember, orderBy, andOr, options.Formats)
-        {
-            Options = options;
-        }
+           IAndOr<T, JoinQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> andOr, ConnectionOptions<TDbConnection> options)
+           : base(selectMember, orderBy, andOr, options)
+        { }
 
         public override OrderByQuery<T, TDbConnection> Build()
         {
             string query = CreateQuery(out IEnumerable<PropertyOptions> columns, out IEnumerable<CriteriaDetail> criteria);
-            return new OrderByQuery<T, TDbConnection>(query, columns, criteria, Options);
+            return new OrderByQuery<T, TDbConnection>(query, columns, criteria, QueryOptions);
         }
     }
 }

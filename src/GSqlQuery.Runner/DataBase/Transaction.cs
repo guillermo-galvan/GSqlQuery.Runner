@@ -10,7 +10,7 @@ namespace GSqlQuery.Runner
         where TIConnection : IConnection
         where TDbTransaction : DbTransaction
         where TDbCommand : DbCommand
-        where TDbConnection: DbConnection
+        where TDbConnection : DbConnection
     {
         protected readonly TDbTransaction _transaction;
         protected readonly TIConnection _connection;

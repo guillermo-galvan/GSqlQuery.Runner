@@ -1,4 +1,5 @@
-﻿using GSqlQuery.Runner;
+﻿using GSqlQuery;
+using GSqlQuery.Runner;
 using GSqlQuery.Runner.Transforms;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace GSqlQuery
         }
 
         public virtual ITransformTo<T, TDbDataReader> GetTransformTo<T, TDbDataReader>(ClassOptions classOptions)
-           where T : class
+            where T : class
             where TDbDataReader : DbDataReader
         {
             Type type = typeof(T);

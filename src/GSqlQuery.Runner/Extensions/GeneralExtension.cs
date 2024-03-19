@@ -2,7 +2,7 @@
 using System.Data;
 using System.Linq;
 
-namespace GSqlQuery.Runner.Extensions
+namespace GSqlQuery.Runner
 {
     public static class GeneralExtension
     {

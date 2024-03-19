@@ -23,9 +23,9 @@ namespace GSqlQuery.Runner.Test.Queries
             DeleteQueryBuilder<Test1, IDbConnection> queryBuilder = new DeleteQueryBuilder<Test1, IDbConnection>(_connectionOptions);
 
             Assert.NotNull(queryBuilder);
-            Assert.NotNull(queryBuilder.Options);
-            Assert.NotNull(queryBuilder.Options.Formats);
-            Assert.NotNull(queryBuilder.Options.DatabaseManagement);
+            Assert.NotNull(queryBuilder.QueryOptions);
+            Assert.NotNull(queryBuilder.QueryOptions.Formats);
+            Assert.NotNull(queryBuilder.QueryOptions.DatabaseManagement);
             Assert.NotNull(queryBuilder.Columns);
             Assert.NotEmpty(queryBuilder.Columns);
         }
@@ -48,7 +48,9 @@ namespace GSqlQuery.Runner.Test.Queries
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Formats);
+            Assert.NotNull(query.QueryOptions);
+            Assert.NotNull(query.QueryOptions.Formats);
+            Assert.NotNull(query.QueryOptions.DatabaseManagement);
             Assert.NotNull(query.Criteria);
         }
 

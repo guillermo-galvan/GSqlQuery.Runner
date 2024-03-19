@@ -28,7 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="GSqlQuery" Version="1.1.0-beta3" />
+		<PackageReference Include="GSqlQuery" Version="2.0.0-beta-2" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 

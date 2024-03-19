@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner.Transforms
 {
-    public static class TransformTo 
+    public static class TransformTo
     {
         internal static Type charType = typeof(char[]);
 

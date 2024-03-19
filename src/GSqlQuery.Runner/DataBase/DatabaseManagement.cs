@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner
 {
-    public abstract class DatabaseManagement<TIConnection, TITransaction, TDbCommand, TDbTransaction, TDbDataReader>(string connectionString, DatabaseManagementEvents events) 
+    public abstract class DatabaseManagement<TIConnection, TITransaction, TDbCommand, TDbTransaction, TDbDataReader>(string connectionString, DatabaseManagementEvents events)
         : IDatabaseManagement<TIConnection>
-        where TIConnection : IConnection<TITransaction,TDbCommand>
+        where TIConnection : IConnection<TITransaction, TDbCommand>
         where TITransaction : ITransaction<TIConnection, TDbTransaction>
         where TDbCommand : DbCommand
         where TDbDataReader : DbDataReader
@@ -63,7 +63,7 @@ namespace GSqlQuery.Runner
             {
                 Events.WriteTrace("ExecuteNonQuery Query: {@Text} Parameters: {@parameters}", [query.Text, parameters]);
             }
-                
+
             using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 return command.ExecuteNonQuery();
@@ -90,16 +90,16 @@ namespace GSqlQuery.Runner
             cancellationToken.ThrowIfCancellationRequested();
             if (Events.IsTraceActive)
             {
-                Events.WriteTrace("ExecuteNonQueryAsync Query: {@Text} Parameters: {@parameters}",[query.Text, parameters]);
+                Events.WriteTrace("ExecuteNonQueryAsync Query: {@Text} Parameters: {@parameters}", [query.Text, parameters]);
             }
-                
+
             using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 return command.ExecuteNonQueryAsync(cancellationToken);
             }
         }
 
-        public virtual IEnumerable<T> ExecuteReader<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
+        public virtual IEnumerable<T> ExecuteReader<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters)
             where T : class
         {
             using (TIConnection connection = GetConnection())
@@ -115,7 +115,7 @@ namespace GSqlQuery.Runner
             }
         }
 
-        public virtual IEnumerable<T> ExecuteReader<T>(TIConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
+        public virtual IEnumerable<T> ExecuteReader<T>(TIConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters)
             where T : class
         {
             if (Events.IsTraceActive)
@@ -152,7 +152,7 @@ namespace GSqlQuery.Runner
         public virtual async Task<IEnumerable<T>> ExecuteReaderAsync<T>(TIConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) where T : class
         {
             cancellationToken.ThrowIfCancellationRequested();
-              
+
             if (Events.IsTraceActive)
             {
                 Events.WriteTrace("ExecuteReaderAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}", [typeof(T).FullName, query.Text, parameters]);
@@ -191,7 +191,7 @@ namespace GSqlQuery.Runner
             {
                 Events.WriteTrace("ExecuteScalar Type: {@FullName} Query: {@Text} Parameters: {@parameters}", [typeof(T).FullName, query.Text, parameters]);
             }
-                
+
             using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 object resultCommand = command.ExecuteScalar();
@@ -222,7 +222,7 @@ namespace GSqlQuery.Runner
             {
                 Events.WriteTrace("ExecuteScalarAsync Type: {@FullName} Query: {@Text} Parameters: {@parameters}", [typeof(T).FullName, query.Text, parameters]);
             }
-                
+
             using (TDbCommand command = CreateCommand(connection, query, parameters))
             {
                 object resultCommand = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);

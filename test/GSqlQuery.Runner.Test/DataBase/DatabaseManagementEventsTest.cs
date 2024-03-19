@@ -9,10 +9,16 @@ namespace GSqlQuery.Runner.Test.DataBase
 {
     public class DatabaseManagementEventsTest
     {
+        private readonly ConnectionOptions<IDbConnection> _connectionOptions;
+        public DatabaseManagementEventsTest()
+        {
+            _connectionOptions = new ConnectionOptions<IDbConnection>(new Models.TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+        }
+
         [Fact]
         public void GetParameter()
         {
-            var query = EntityExecute<Test1>.Select(new TestFormats()).Build();
+            var query = EntityExecute<Test1>.Select(_connectionOptions).Build();
 
             Queue<ParameterDetail> parameters = new Queue<ParameterDetail>();
 
@@ -37,7 +43,7 @@ namespace GSqlQuery.Runner.Test.DataBase
         [Fact]
         public void OnGetParameter()
         {
-            var query = EntityExecute<Test1>.Select(new TestFormats()).Build();
+            var query = EntityExecute<Test1>.Select(_connectionOptions).Build();
 
             Queue<ParameterDetail> parameters = new Queue<ParameterDetail>();
             if (query.Criteria != null)
@@ -69,7 +75,7 @@ namespace GSqlQuery.Runner.Test.DataBase
         [Fact]
         public void GetTransformTo_join_query()
         {
-            JoinQuery<Join<Test1, Test3>> query = EntityExecute<Test1>.Select(new TestFormats()).InnerJoin<Test3>().Equal(x => x.Table1.Id, x => x.Table2.Ids).Build();
+            IQuery<Join<Test1, Test3>, ConnectionOptions<IDbConnection>> query = EntityExecute<Test1>.Select(_connectionOptions).InnerJoin<Test3>().Equal(x => x.Table1.Id, x => x.Table2.Ids).Build();
             var events = new TestDatabaseManagmentEvents();
 
             var result = events.GetTransformTo<Join<Test1,Test3>, DbDataReader>(ClassOptionsFactory.GetClassOptions(typeof(Join<Test1, Test3>)));

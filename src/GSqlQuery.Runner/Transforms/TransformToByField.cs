@@ -3,7 +3,7 @@ using System.Data.Common;
 
 namespace GSqlQuery.Runner.Transforms
 {
-    internal class TransformToByField<T, TDbDataReader>(int numColumns) : TransformTo<T, TDbDataReader>(numColumns) 
+    internal class TransformToByField<T, TDbDataReader>(int numColumns) : TransformTo<T, TDbDataReader>(numColumns)
         where T : class
         where TDbDataReader : DbDataReader
     {

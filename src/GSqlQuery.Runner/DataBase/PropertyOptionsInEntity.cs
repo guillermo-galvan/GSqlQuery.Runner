@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GSqlQuery.Runner
+namespace GSqlQuery
 {
     public class PropertyOptionsInEntity
     {
@@ -19,12 +19,5 @@ namespace GSqlQuery.Runner
             DefaultValue = defaultValue;
             Ordinal = ordinal;
         }
-    }
-
-    public class PropertyValue(PropertyOptions property, object value)
-    {
-        public PropertyOptions Property { get; } = property;
-
-        public object Value { get; } = value;
     }
 }

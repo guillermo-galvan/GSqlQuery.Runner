@@ -1,49 +1,26 @@
-﻿using System;
+﻿using GSqlQuery.Extensions;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.Reflection;
 
 namespace GSqlQuery.Runner.Queries
 {
-    internal class UpdateQueryBuilder<T, TDbConnection> : GSqlQuery.Queries.UpdateQueryBuilder<T, UpdateQuery<T, TDbConnection>>,
+    internal class UpdateQueryBuilder<T, TDbConnection> : GSqlQuery.Queries.UpdateQueryBuilder<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>,
         IQueryBuilder<UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>,
         ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
         where T : class
     {
-        new public ConnectionOptions<TDbConnection> Options { get; }
+        public UpdateQueryBuilder(ConnectionOptions<TDbConnection> connectionOptions, object entity, ClassOptionsTupla<IEnumerable<MemberInfo>> classOptionsTupla) :
+             base(connectionOptions, entity, classOptionsTupla)
+        { }
 
-        public UpdateQueryBuilder(ConnectionOptions<TDbConnection> connectionOptions, IEnumerable<string> selectMember, object value) :
-             base(connectionOptions.Formats, selectMember, value)
-        {
-            Options = connectionOptions;
-        }
-
-        public UpdateQueryBuilder(ConnectionOptions<TDbConnection> connectionOptions, object entity, IEnumerable<string> selectMember) :
-            base(connectionOptions.Formats, entity, selectMember)
-        {
-            Options = connectionOptions;
-        }
+        public UpdateQueryBuilder(ConnectionOptions<TDbConnection> connectionOptions, ClassOptionsTupla<MemberInfo> classOptionsTupla, object value) :
+            base(connectionOptions, classOptionsTupla, value)
+        { }
 
         public override UpdateQuery<T, TDbConnection> Build()
         {
             string text = CreateQuery();
-            return new UpdateQuery<T, TDbConnection>(text, Columns, _criteria, Options);
-        }
-
-        public ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Set<TProperties>(Expression<Func<T, TProperties>> expression, TProperties value)
-        {
-            AddSet(expression, value);
-            return this;
-        }
-
-        public ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Set<TProperties>(Expression<Func<T, TProperties>> expression)
-        {
-            AddSet(_entity, expression);
-            return this;
-        }
-
-        IWhere<UpdateQuery<T, TDbConnection>> IQueryBuilderWithWhere<UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>.Where()
-        {
-            return Where();
+            return new UpdateQuery<T, TDbConnection>(text, Columns, _criteria, QueryOptions);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace GSqlQuery
 {
-    public static class BulkCopyExtension
+    public static class BatchExtension
     {
         private static DataTable CreateTable(ClassOptions classOption)
         {

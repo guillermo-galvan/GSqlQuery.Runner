@@ -273,7 +273,8 @@ namespace GSqlQuery.Runner.Test
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Formats);
+            Assert.NotNull(query.QueryOptions);
+            Assert.NotNull(query.QueryOptions.DatabaseManagement);
             Assert.NotNull(query.Criteria);
             Assert.NotEmpty(query.Criteria);
 
@@ -665,13 +666,15 @@ namespace GSqlQuery.Runner.Test
         public void Should_generate_the_inner_join_three_tables_orderBy_query_with_where(ConnectionOptions<IDbConnection> connectionOptions, string query)
         {
             var queryResult = Test3.Select(connectionOptions)
-                              .InnerJoin<Test6>().Equal(x => x.Table1.Ids, x => x.Table2.Ids)
-                              .RightJoin<Test1>().Equal(x => x.Table2.Ids, x => x.Table3.Id)
-                              .Where()
-                              .Equal(x => x.Table1.Ids, 1)
-                              .AndEqual(x => x.Table2.IsTests, true)
-                              .OrderBy(x => new { x.Table2.IsTests, x.Table1.Names, x.Table3.Id }, OrderBy.ASC)
-                              .Build();
+                                   .InnerJoin<Test6>()
+                                   .Equal(x => x.Table1.Ids, x => x.Table2.Ids)
+                                   .RightJoin<Test1>()
+                                   .Equal(x => x.Table2.Ids, x => x.Table3.Id)
+                                   .Where()
+                                   .Equal(x => x.Table1.Ids, 1)
+                                   .AndEqual(x => x.Table2.IsTests, true)
+                                   .OrderBy(x => new { x.Table2.IsTests, x.Table1.Names, x.Table3.Id }, OrderBy.ASC)
+                                   .Build();
 
             string result = queryResult.Text;
             if (queryResult.Criteria != null)
@@ -699,7 +702,8 @@ namespace GSqlQuery.Runner.Test
             Assert.NotEmpty(query.Text);
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
-            Assert.NotNull(query.Formats);
+            Assert.NotNull(query.QueryOptions);
+            Assert.NotNull(query.QueryOptions.DatabaseManagement);
             Assert.NotNull(query.Criteria);
             Assert.NotEmpty(query.Criteria);
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GSqlQuery.Runner;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery
 {
-    public class UpdateQuery<T, TDbConnection> : UpdateQuery<T>, IExecute<int, TDbConnection>
+    public class UpdateQuery<T, TDbConnection> : Query<T, ConnectionOptions<TDbConnection>>, IExecute<int, TDbConnection>
         where T : class
     {
         private readonly IEnumerable<IDataParameter> _parameters;
@@ -14,10 +15,10 @@ namespace GSqlQuery
         public IDatabaseManagement<TDbConnection> DatabaseManagement { get; }
 
         internal UpdateQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria, ConnectionOptions<TDbConnection> connectionOptions) :
-            base(text, columns, criteria, connectionOptions.Formats)
+            base(ref text, columns, criteria, connectionOptions)
         {
             DatabaseManagement = connectionOptions.DatabaseManagement;
-            _parameters = Runner.Extensions.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);
+            _parameters = GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);
         }
         public int Execute()
         {

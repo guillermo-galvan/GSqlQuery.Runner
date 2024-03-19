@@ -13,11 +13,13 @@ namespace GSqlQuery.Runner.Test.Queries
     {
         private readonly Data.SearchCriteria _equal;
         private readonly DeleteQueryBuilder<Test1, IDbConnection> _deleteQueryBuilder;
+        private readonly ConnectionOptions<IDbConnection> _connectionOptions;
 
         public DeleteWhereTest()
         {
+            _connectionOptions = new ConnectionOptions<IDbConnection>(new TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
             _equal = new Data.SearchCriteria(new DefaultFormats(), new TableAttribute("name"), new ColumnAttribute("column"));
-            _deleteQueryBuilder = new DeleteQueryBuilder<Test1, IDbConnection>(new ConnectionOptions<IDbConnection>(new TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock()));
+            _deleteQueryBuilder = new DeleteQueryBuilder<Test1, IDbConnection>(_connectionOptions);
 
         }
 
@@ -25,7 +27,7 @@ namespace GSqlQuery.Runner.Test.Queries
         public void Should_add_criteria2()
         {
             AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>> query =
-                new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, new DefaultFormats());
+                new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, _connectionOptions);
             Assert.NotNull(query);
             query.Add(_equal);
             Assert.True(true);
@@ -35,7 +37,7 @@ namespace GSqlQuery.Runner.Test.Queries
         public void Throw_exception_if_null_ISearchCriteria_is_added2()
         {
             AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>> query =
-                new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, new DefaultFormats());
+                new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, _connectionOptions);
             Assert.NotNull(query);
             Assert.Throws<ArgumentNullException>(() => query.Add(null));
         }
@@ -44,7 +46,7 @@ namespace GSqlQuery.Runner.Test.Queries
         public void Should_build_the_criteria2()
         {
             AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>> query =
-                new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, new DefaultFormats());
+                new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, _connectionOptions);
             Assert.NotNull(query);
             query.Add(_equal);
 
@@ -57,7 +59,7 @@ namespace GSqlQuery.Runner.Test.Queries
         public void Should_get_the_IAndOr_interface_with_expression2()
         {
             AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>> where =
-                new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, new DefaultFormats());
+                new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, _connectionOptions);
             var andOr = GSqlQueryExtension.GetAndOr(where, x => x.Id);
             Assert.NotNull(andOr);
         }
@@ -72,7 +74,7 @@ namespace GSqlQuery.Runner.Test.Queries
         [Fact]
         public void Should_validate_of_IAndOr2()
         {
-            IAndOr<Test1, DeleteQuery<Test1, IDbConnection>> andOr = new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, new DefaultFormats());
+            IAndOr<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>> andOr = new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, _connectionOptions);
             try
             {
                 GSqlQueryExtension.Validate(andOr, x => x.IsTest);
@@ -87,14 +89,14 @@ namespace GSqlQuery.Runner.Test.Queries
         [Fact]
         public void Throw_exception_if_expression_is_null_in_IAndOr2()
         {
-            IAndOr<Test1, DeleteQuery<Test1, IDbConnection>> where = null;
+            IAndOr<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>> where = null;
             Assert.Throws<ArgumentNullException>(() => GSqlQueryExtension.Validate(where, x => x.Id));
         }
 
         [Fact]
         public void Should_get_the_IAndOr_interface2()
         {
-            AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>> where = new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, new DefaultFormats());
+            AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>> where = new AndOrBase<Test1, DeleteQuery<Test1, IDbConnection>, ConnectionOptions<IDbConnection>>(_deleteQueryBuilder, _connectionOptions);
             var andOr = GSqlQueryExtension.GetAndOr(where);
             Assert.NotNull(andOr);
         }

@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery
 {
-    public class DeleteQuery<T, TDbConnection> : DeleteQuery<T>, IExecute<int, TDbConnection>
+    public class DeleteQuery<T, TDbConnection> : Query<T, ConnectionOptions<TDbConnection>>, IExecute<int, TDbConnection>
          where T : class
     {
         private readonly IEnumerable<IDataParameter> _parameters;
 
         internal DeleteQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria, ConnectionOptions<TDbConnection> connectionOptions) :
-            base(text, columns, criteria, connectionOptions.Formats)
+            base(ref text, columns, criteria, connectionOptions)
         {
             DatabaseManagement = connectionOptions.DatabaseManagement;
-            _parameters = Runner.Extensions.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);
+            _parameters = Runner.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);
         }
 
         public IDatabaseManagement<TDbConnection> DatabaseManagement { get; }

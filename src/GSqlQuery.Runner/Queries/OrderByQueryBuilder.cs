@@ -1,5 +1,7 @@
 ﻿using GSqlQuery.Queries;
 using System.Collections.Generic;
+using System.Reflection;
+using GSqlQuery.Extensions;
 
 namespace GSqlQuery.Runner.Queries
 {
@@ -7,26 +9,19 @@ namespace GSqlQuery.Runner.Queries
         IQueryBuilder<OrderByQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
         where T : class
     {
-        new public ConnectionOptions<TDbConnection> Options { get; }
 
-        public OrderByQueryBuilder(IEnumerable<string> selectMember, OrderBy orderBy,
-            IQueryBuilderWithWhere<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder)
-            : base(selectMember, orderBy, queryBuilder, queryBuilder.Options.Formats)
-        {
-            Options = queryBuilder.Options;
-        }
+        public OrderByQueryBuilder(ClassOptionsTupla<IEnumerable<MemberInfo>> classOptionsTupla, OrderBy orderBy,IQueryBuilderWithWhere<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder) : base(classOptionsTupla, orderBy, queryBuilder, queryBuilder.QueryOptions)
+        { }
 
-        public OrderByQueryBuilder(IEnumerable<string> selectMember, OrderBy orderBy,
-           IAndOr<T, SelectQuery<T, TDbConnection>> andOr, ConnectionOptions<TDbConnection> options)
-           : base(selectMember, orderBy, andOr)
-        {
-            Options = options;
-        }
+        public OrderByQueryBuilder(ClassOptionsTupla<IEnumerable<MemberInfo>> classOptionsTupla, OrderBy orderBy,
+           IAndOr<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> andOr)
+           : base(classOptionsTupla, orderBy, andOr)
+        { }
 
         public override OrderByQuery<T, TDbConnection> Build()
         {
             string query = CreateQuery(out IEnumerable<PropertyOptions> columns, out IEnumerable<CriteriaDetail> criteria);
-            return new OrderByQuery<T, TDbConnection>(query, columns, criteria, Options);
+            return new OrderByQuery<T, TDbConnection>(query, columns, criteria, QueryOptions);
         }
     }
 }

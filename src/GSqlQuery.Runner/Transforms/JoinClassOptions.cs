@@ -53,7 +53,7 @@ namespace GSqlQuery.Runner.Transforms
         {
             int position = 0;
             _events = events;
-            _joinClassOptions = _classOptions.PropertyOptions.Where(x => x.PropertyInfo.PropertyType.IsClass).Select(x => new JoinClassOptions<TDbDataReader>() 
+            _joinClassOptions = _classOptions.PropertyOptions.Where(x => x.PropertyInfo.PropertyType.IsClass).Select(x => new JoinClassOptions<TDbDataReader>()
             {
                 PropertyOptions = x,
                 ClassOptions = ClassOptionsFactory.GetClassOptions(x.PropertyInfo.PropertyType),

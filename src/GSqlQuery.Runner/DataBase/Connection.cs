@@ -8,7 +8,7 @@ namespace GSqlQuery.Runner
 {
     public abstract class Connection<TItransaccion, TDbConnection, TDbTransaction, TDbCommand>(TDbConnection connection) :
         IConnection<TItransaccion, TDbCommand>, IDisposable
-        where TItransaccion : ITransaction 
+        where TItransaccion : ITransaction
         where TDbConnection : DbConnection
         where TDbTransaction : DbTransaction
         where TDbCommand : DbCommand
@@ -45,7 +45,7 @@ namespace GSqlQuery.Runner
             cancellationToken.ThrowIfCancellationRequested();
 
 #if NET5_0_OR_GREATER
-                return _connection.CloseAsync();
+            return _connection.CloseAsync();
 #else
             _connection.Close();
             return Task.CompletedTask;
@@ -71,7 +71,7 @@ namespace GSqlQuery.Runner
 
         public virtual void RemoveTransaction(ITransaction transaction)
         {
-            if(transaction.Equals(_transaction))
+            if (transaction.Equals(_transaction))
             {
                 _transaction = default;
                 return;

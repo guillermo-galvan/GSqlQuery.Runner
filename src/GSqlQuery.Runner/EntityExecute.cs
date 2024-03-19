@@ -2,16 +2,15 @@
 using GSqlQuery.Runner.Queries;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace GSqlQuery
 {
-    public abstract class EntityExecute<T> : Entity<T>, Runner.IRead<T>, Runner.ICreate<T>, Runner.IUpdate<T>, Runner.IDelete<T>
+    public abstract class EntityExecute<T> : Entity<T>
         where T : class
     {
-        public static IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>, TDbConnection>
+        public static Runner.IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, TDbConnection>
            Select<TProperties, TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions, Expression<Func<T, TProperties>> expression)
         {
             if (connectionOptions == null)
@@ -24,21 +23,19 @@ namespace GSqlQuery
                 throw new ArgumentNullException(nameof(expression), ErrorMessages.ParameterNotNull);
             }
 
-            ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
-            GeneralExtension.ValidateMemberInfos(QueryType.Read, options);
-            IEnumerable<string> selectMember = options.MemberInfo.Select(x => x.Name);
-            return new SelectQueryBuilder<T, TDbConnection>(selectMember, connectionOptions);
+            ClassOptionsTupla<IEnumerable<MemberInfo>> options = ExpressionExtension.GetOptionsAndMembers(expression);
+            ExpressionExtension.ValidateMemberInfos(QueryType.Read, options);
+            return new SelectQueryBuilder<T, TDbConnection>(options, connectionOptions);
         }
 
-        public static IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>, TDbConnection>
-            Select<TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions)
+        public static Runner.IJoinQueryBuilder<T, SelectQuery<T, TDbConnection>, TDbConnection> Select<TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions)
         {
             if (connectionOptions == null)
             {
                 throw new ArgumentNullException(nameof(connectionOptions), ErrorMessages.ParameterNotNull);
             }
-            IEnumerable<PropertyOptions> propertyOptions = ClassOptionsFactory.GetClassOptions(typeof(T)).PropertyOptions;
-            return new SelectQueryBuilder<T, TDbConnection>(propertyOptions, connectionOptions);
+
+            return new SelectQueryBuilder<T, TDbConnection>(connectionOptions);
         }
 
         public IQueryBuilder<InsertQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Insert<TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions)
@@ -64,21 +61,17 @@ namespace GSqlQuery
             return new InsertQueryBuilderExecute<T, TDbConnection>(connectionOptions, entity);
         }
 
-        public static ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
-            Update<TProperties, TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions,
-            Expression<Func<T, TProperties>> expression, TProperties value)
+        public static ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Update<TProperties, TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions, Expression<Func<T, TProperties>> expression, TProperties value)
         {
             if (connectionOptions == null)
             {
                 throw new ArgumentNullException(nameof(connectionOptions), ErrorMessages.ParameterNotNull);
             }
-            ClassOptionsTupla<MemberInfo> options = GeneralExtension.GetOptionsAndMember(expression);
-            GeneralExtension.ValidateMemberInfo(options.MemberInfo, options.ClassOptions);
-            return new UpdateQueryBuilder<T, TDbConnection>(connectionOptions, new string[] { options.MemberInfo.Name }, value);
+            ClassOptionsTupla<MemberInfo> options = ExpressionExtension.GetOptionsAndMember(expression);
+            return new UpdateQueryBuilder<T, TDbConnection>(connectionOptions, options, value);
         }
 
-        public ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
-            Update<TProperties, TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions, Expression<Func<T, TProperties>> expression)
+        public ISet<T, UpdateQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Update<TProperties, TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions, Expression<Func<T, TProperties>> expression)
         {
             if (connectionOptions == null)
             {
@@ -90,13 +83,12 @@ namespace GSqlQuery
                 throw new ArgumentNullException(nameof(expression), ErrorMessages.ParameterNotNull);
             }
 
-            ClassOptionsTupla<IEnumerable<MemberInfo>> options = GeneralExtension.GetOptionsAndMembers(expression);
-            GeneralExtension.ValidateMemberInfos(QueryType.Update, options);
-            return new UpdateQueryBuilder<T, TDbConnection>(connectionOptions, this, options.MemberInfo.Select(x => x.Name));
+            ClassOptionsTupla<IEnumerable<MemberInfo>> options = ExpressionExtension.GetOptionsAndMembers(expression);
+            ExpressionExtension.ValidateMemberInfos(QueryType.Update, options);
+            return new UpdateQueryBuilder<T, TDbConnection>(connectionOptions, this, options);
         }
 
-        public static IQueryBuilderWithWhere<T, DeleteQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
-            Delete<TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions)
+        public static IQueryBuilderWithWhere<T, DeleteQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Delete<TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions)
         {
             if (connectionOptions == null)
             {
@@ -105,14 +97,7 @@ namespace GSqlQuery
             return new DeleteQueryBuilder<T, TDbConnection>(connectionOptions);
         }
 
-        /// <summary>
-        /// Delete query
-        /// </summary>
-        /// <param name="formats">Formats</param>
-        /// <param name="entity">Entity</param>
-        /// <returns>Bulder</returns>
-        public static IQueryBuilderWithWhere<T, DeleteQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
-            Delete<TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions, T entity)
+        public static IQueryBuilderWithWhere<T, DeleteQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> Delete<TDbConnection>(ConnectionOptions<TDbConnection> connectionOptions, T entity)
         {
             if (connectionOptions == null)
             {

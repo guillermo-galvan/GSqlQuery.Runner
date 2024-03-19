@@ -1,4 +1,4 @@
-﻿using GSqlQuery.Runner.Extensions;
+﻿using GSqlQuery.Runner;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GSqlQuery.Runner
+namespace GSqlQuery
 {
     public class BatchExecute<TDbConnection> : IExecute<int, TDbConnection>
     {
@@ -29,7 +29,7 @@ namespace GSqlQuery.Runner
             _columns = new Queue<PropertyOptions>();
         }
 
-        public BatchExecute<TDbConnection> Add<T>(Func<ConnectionOptions<TDbConnection>, IQuery<T>> expression)
+        public BatchExecute<TDbConnection> Add<T>(Func<ConnectionOptions<TDbConnection>, IQuery<T, ConnectionOptions<TDbConnection>>> expression)
             where T : class
         {
             IQuery query = expression.Invoke(_connectionOptions);

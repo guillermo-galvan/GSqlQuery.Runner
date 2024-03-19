@@ -1,13 +1,13 @@
-﻿using GSqlQuery.Runner.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using GSqlQuery.Runner;
 
 namespace GSqlQuery
 {
-    public class OrderByQuery<T, TDbConnection> : OrderByQuery<T>, IExecute<IEnumerable<T>, TDbConnection>
+    public class OrderByQuery<T, TDbConnection> : Query<T, ConnectionOptions<TDbConnection>>, IExecute<IEnumerable<T>, TDbConnection>, IQuery<T>
         where T : class
     {
         private readonly IEnumerable<IDataParameter> _parameters;
@@ -15,7 +15,7 @@ namespace GSqlQuery
         public IDatabaseManagement<TDbConnection> DatabaseManagement { get; }
 
         internal OrderByQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria, ConnectionOptions<TDbConnection> connectionOptions) :
-            base(text, columns, criteria, connectionOptions.Formats)
+            base(ref text, columns, criteria, connectionOptions)
         {
             DatabaseManagement = connectionOptions.DatabaseManagement;
             _parameters = GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);

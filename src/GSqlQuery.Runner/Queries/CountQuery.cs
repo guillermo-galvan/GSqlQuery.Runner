@@ -6,17 +6,18 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery
 {
-    public class CountQuery<T, TDbConnection> : CountQuery<T>, IExecute<int, TDbConnection>
+    public class CountQuery<T, TDbConnection> : Query<T, ConnectionOptions<TDbConnection>>, IExecute<int, TDbConnection>, IQuery<T>
         where T : class
     {
         public IDatabaseManagement<TDbConnection> DatabaseManagement { get; }
+
         private readonly IEnumerable<IDataParameter> _parameters;
 
         internal CountQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria, ConnectionOptions<TDbConnection> connectionOptions)
-            : base(text, columns, criteria, connectionOptions.Formats)
+            : base(ref text, columns, criteria, connectionOptions)
         {
             DatabaseManagement = connectionOptions.DatabaseManagement;
-            _parameters = Runner.Extensions.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);
+            _parameters = Runner.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);
         }
 
         public int Execute()

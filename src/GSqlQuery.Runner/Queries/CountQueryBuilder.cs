@@ -6,23 +6,15 @@
         IQueryBuilderWithWhere<T, CountQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>
         where T : class
     {
-        new public ConnectionOptions<TDbConnection> Options { get; }
 
         public CountQueryBuilder(IQueryBuilderWithWhere<SelectQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>> queryBuilder) :
-            base(queryBuilder, queryBuilder.Options.Formats)
-        {
-            Options = queryBuilder.Options;
-        }
+            base(queryBuilder, queryBuilder.QueryOptions)
+        { }
 
         public override CountQuery<T, TDbConnection> Build()
         {
             string query = CreateQuery();
-            return new CountQuery<T, TDbConnection>(query, Columns, _criteria, _queryBuilder.Options);
-        }
-
-        IWhere<CountQuery<T, TDbConnection>> IQueryBuilderWithWhere<CountQuery<T, TDbConnection>, ConnectionOptions<TDbConnection>>.Where()
-        {
-            return Where();
+            return new CountQuery<T, TDbConnection>(query, Columns, _criteria, QueryOptions);
         }
     }
 }

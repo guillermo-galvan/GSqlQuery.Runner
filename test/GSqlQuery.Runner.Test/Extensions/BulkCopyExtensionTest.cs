@@ -13,10 +13,10 @@ namespace GSqlQuery.Runner.Test.Extensions
         {
             IEnumerable<Test1> test1s = null;
 
-            Assert.Throws<InvalidOperationException>(() => BulkCopyExtension.FillTable(test1s));
+            Assert.Throws<InvalidOperationException>(() => BatchExtension.FillTable(test1s));
 
             test1s = Enumerable.Empty<Test1>();
-            Assert.Throws<InvalidOperationException>(() => BulkCopyExtension.FillTable(test1s));
+            Assert.Throws<InvalidOperationException>(() => BatchExtension.FillTable(test1s));
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace GSqlQuery.Runner.Test.Extensions
             });
 
 
-            var dataTable = BulkCopyExtension.FillTable(test1s);
+            var dataTable = BatchExtension.FillTable(test1s);
 
             Assert.NotNull(dataTable);
             Assert.True(test1s.Count() == dataTable.Rows.Count);

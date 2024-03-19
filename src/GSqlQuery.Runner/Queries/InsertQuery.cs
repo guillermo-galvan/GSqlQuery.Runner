@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GSqlQuery.Runner;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery
 {
-    public sealed class InsertQuery<T, TDbConnection> : InsertQuery<T>, IExecute<T, TDbConnection>, IQuery<T>
+    public sealed class InsertQuery<T, TDbConnection> : Query<T, ConnectionOptions<TDbConnection>>, IExecute<T, TDbConnection>, IQuery<T>
         where T : class
     {
         public object Entity { get; }
@@ -19,12 +20,12 @@ namespace GSqlQuery
 
         internal InsertQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria,
             ConnectionOptions<TDbConnection> connectionOptions, object entity, PropertyOptions propertyOptionsAutoIncrementing)
-            : base(text, columns, criteria, connectionOptions.Formats)
+            : base(ref text, columns, criteria, connectionOptions)
         {
             Entity = entity ?? throw new ArgumentNullException(nameof(entity));
             _propertyOptionsAutoIncrementing = propertyOptionsAutoIncrementing;
             DatabaseManagement = connectionOptions.DatabaseManagement;
-            _parameters = Runner.Extensions.GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);
+            _parameters = GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement);
         }
 
         private async Task InsertAutoIncrementingAsync(TDbConnection connection = default, CancellationToken cancellationToken = default)
