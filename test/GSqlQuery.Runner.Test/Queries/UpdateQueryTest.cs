@@ -13,7 +13,7 @@ namespace GSqlQuery.Runner.Test.Queries
     {
         private readonly ColumnAttribute _columnAttribute;
         private readonly TableAttribute _tableAttribute;
-        private readonly Equal<int> _equal;
+        private readonly Data.SearchCriteria _equal;
         private readonly IFormats _formats;
         private readonly ClassOptions _classOptions;
         private readonly ConnectionOptions<IDbConnection> _connectionOptions;
@@ -24,7 +24,7 @@ namespace GSqlQuery.Runner.Test.Queries
             _classOptions = ClassOptionsFactory.GetClassOptions(typeof(Test1));
             _columnAttribute = _classOptions.PropertyOptions.FirstOrDefault(x => x.ColumnAttribute.Name == nameof(Test1.Id)).ColumnAttribute;
             _tableAttribute = _classOptions.Table;
-            _equal = new Equal<int>(_tableAttribute, _columnAttribute, 1);
+            _equal = new Data.SearchCriteria(_formats, _tableAttribute, _columnAttribute);
             _formats = new TestFormats();
             _connectionOptions = new ConnectionOptions<IDbConnection>(_formats, LoadGSqlQueryOptions.GetDatabaseManagmentMock());
             _connectionOptionsAsync = new ConnectionOptions<IDbConnection>(_formats, LoadGSqlQueryOptions.GetDatabaseManagmentMockAsync());
@@ -44,7 +44,9 @@ namespace GSqlQuery.Runner.Test.Queries
             Assert.NotNull(query.Criteria);
             Assert.NotEmpty(query.Criteria);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Formats);
+            Assert.NotNull(query.QueryOptions);
+            Assert.NotNull(query.QueryOptions.Formats);
+            Assert.NotNull(query.QueryOptions.DatabaseManagement);
         }
 
         [Fact]

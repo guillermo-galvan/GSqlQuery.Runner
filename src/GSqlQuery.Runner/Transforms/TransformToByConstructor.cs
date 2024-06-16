@@ -3,30 +3,17 @@ using System.Data.Common;
 
 namespace GSqlQuery.Runner.Transforms
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal class TransformToByConstructor<T> : TransformTo<T> where T : class
+    internal class TransformToByConstructor<T, TDbDataReader>(int numColumns) : TransformTo<T, TDbDataReader>(numColumns)
+        where T : class
+        where TDbDataReader : DbDataReader
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="numColumns"></param>
-        public TransformToByConstructor(int numColumns) : base(numColumns)
-        {}
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public override T Generate(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader)
+        public override T CreateEntity(IEnumerable<PropertyValue> propertyValues)
         {
             object[] fields = new object[_numColumns];
 
-            foreach (var item in columns)
+            foreach (PropertyValue item in propertyValues)
             {
-                fields[item.Property.PositionConstructor] = item.Ordinal.HasValue ? TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value)) : item.DefaultValue;                
+                fields[item.Property.PositionConstructor] = item.Value;
             }
 
             return (T)_classOptions.ConstructorInfo.Invoke(fields);

@@ -15,6 +15,8 @@ namespace GSqlQuery.Runner.Benchmark.Data
 
         public BenchmarkBase()
         {
+            var events = new BenchmarkDatabaseManagmentEvents();
+            mock.Setup(x => x.Events).Returns(() => events);
             _connections = new ConnectionOptions<IDbConnection>(new DefaultFormats(), mock.Object);
         }
     }

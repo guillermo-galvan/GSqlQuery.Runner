@@ -16,7 +16,7 @@ namespace GSqlQuery
 
         TDbConnection GetConnection();
 
-        IEnumerable<T> ExecuteReader<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
+        IEnumerable<T> ExecuteReader<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters)
             where T : class;
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace GSqlQuery
         /// <param name="propertyOptions"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        IEnumerable<T> ExecuteReader<T>(TDbConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters) 
+        IEnumerable<T> ExecuteReader<T>(TDbConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters)
             where T : class;
 
         int ExecuteNonQuery(IQuery query, IEnumerable<IDataParameter> parameters);
@@ -57,7 +57,7 @@ namespace GSqlQuery
         Task<TDbConnection> GetConnectionAsync(CancellationToken cancellationToken = default);
 
         Task<IEnumerable<T>> ExecuteReaderAsync<T>(IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions, IEnumerable<IDataParameter> parameters,
-            CancellationToken cancellationToken = default) 
+            CancellationToken cancellationToken = default)
             where T : class;
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace GSqlQuery
         /// <param name="parameters"></param>
         /// <returns></returns>
         Task<IEnumerable<T>> ExecuteReaderAsync<T>(TDbConnection connection, IQuery<T> query, IEnumerable<PropertyOptions> propertyOptions,
-            IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default) 
+            IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default)
             where T : class;
 
         Task<int> ExecuteNonQueryAsync(IQuery query, IEnumerable<IDataParameter> parameters, CancellationToken cancellationToken = default);

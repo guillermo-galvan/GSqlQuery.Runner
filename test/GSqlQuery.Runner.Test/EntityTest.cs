@@ -10,6 +10,17 @@ namespace GSqlQuery.Runner.Test
     public class EntityTest
     {
         [Fact]
+        public void borrar_desepues()
+        {
+            ConnectionOptions<IDbConnection> connectionOptions = new ConnectionOptions<IDbConnection>(new TestFormats(), LoadGSqlQueryOptions.GetDatabaseManagmentMock());
+            var select = Test3.Select(connectionOptions, x => new {x.Ids, x.IsTests});
+            var where = select.Where();
+            var criteria = where.Between(x => x.Creates, DateTime.Now.AddDays(30), DateTime.Now);
+            var result = select.Build();
+            
+        }
+
+        [Fact]
         public void Throw_an_exception_if_null_key_is_passed()
         {
             ConnectionOptions<IDbConnection> connectionOptions = null;
@@ -262,7 +273,8 @@ namespace GSqlQuery.Runner.Test
             Assert.NotNull(query.Columns);
             Assert.NotEmpty(query.Columns);
             Assert.NotNull(query.DatabaseManagement);
-            Assert.NotNull(query.Formats);
+            Assert.NotNull(query.QueryOptions);
+            Assert.NotNull(query.QueryOptions.DatabaseManagement);
             Assert.NotNull(query.Criteria);
             Assert.NotEmpty(query.Criteria);
 
@@ -654,13 +666,15 @@ namespace GSqlQuery.Runner.Test
         public void Should_generate_the_inner_join_three_tables_orderBy_query_with_where(ConnectionOptions<IDbConnection> connectionOptions, string query)
         {
             var queryResult = Test3.Select(connectionOptions)
-                              .InnerJoin<Test6>().Equal(x => x.Table1.Ids, x => x.Table2.Ids)
-                              .RightJoin<Test1>().Equal(x => x.Table2.Ids, x => x.Table3.Id)
-                              .Where()
-                              .Equal(x => x.Table1.Ids, 1)
-                              .AndEqual(x => x.Table2.IsTests, true)
-                              .OrderBy(x => new { x.Table2.IsTests, x.Table1.Names, x.Table3.Id }, OrderBy.ASC)
-                              .Build();
+                                   .InnerJoin<Test6>()
+                                   .Equal(x => x.Table1.Ids, x => x.Table2.Ids)
+                                   .RightJoin<Test1>()
+                                   .Equal(x => x.Table2.Ids, x => x.Table3.Id)
+                                   .Where()
+                                   .Equal(x => x.Table1.Ids, 1)
+                                   .AndEqual(x => x.Table2.IsTests, true)
+                                   .OrderBy(x => new { x.Table2.IsTests, x.Table1.Names, x.Table3.Id }, OrderBy.ASC)
+                                   .Build();
 
             string result = queryResult.Text;
             if (queryResult.Criteria != null)
@@ -674,6 +688,31 @@ namespace GSqlQuery.Runner.Test
             Assert.NotNull(queryResult);
             Assert.NotEmpty(queryResult.Text);
             Assert.Equal(query, result);
+        }
+
+        [Theory]
+        [ClassData(typeof(Delete_Test3_TestData3))]
+        public void Should_generate_the_delete_query_with_entity(ConnectionOptions<IDbConnection> connectionOptions, string queryText)
+        {
+            Test3 test3 = new Test3(1, "Names", DateTime.Now, true);
+            var query = Test3.Delete(connectionOptions, test3).Build();
+
+            Assert.NotNull(query);
+            Assert.NotNull(query.Text);
+            Assert.NotEmpty(query.Text);
+            Assert.NotNull(query.Columns);
+            Assert.NotEmpty(query.Columns);
+            Assert.NotNull(query.QueryOptions);
+            Assert.NotNull(query.QueryOptions.DatabaseManagement);
+            Assert.NotNull(query.Criteria);
+            Assert.NotEmpty(query.Criteria);
+
+            string result = query.Text;
+            foreach (var item in query.Criteria)
+            {
+                result = item.ParameterDetails.ParameterReplace(result);
+            }
+            Assert.Equal(queryText, result);
         }
     }
 }

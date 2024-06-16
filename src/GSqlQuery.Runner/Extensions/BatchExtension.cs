@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace GSqlQuery
 {
-    public static class BulkCopyExtension
+    public static class BatchExtension
     {
         private static DataTable CreateTable(ClassOptions classOption)
         {
@@ -31,13 +31,13 @@ namespace GSqlQuery
                 throw new InvalidOperationException("Sequence contains no elements");
             }
 
-            var classOption = ClassOptionsFactory.GetClassOptions(typeof(T));
+            ClassOptions classOption = ClassOptionsFactory.GetClassOptions(typeof(T));
 
             DataTable dataTable = CreateTable(classOption);
 
-            foreach (var val in values)
+            foreach (T val in values)
             {
-                var row = dataTable.NewRow();
+                DataRow row = dataTable.NewRow();
 
                 foreach (PropertyOptions property in classOption.PropertyOptions)
                 {

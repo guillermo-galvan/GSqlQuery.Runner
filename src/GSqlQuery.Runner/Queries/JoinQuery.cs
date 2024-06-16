@@ -1,46 +1,51 @@
-﻿using GSqlQuery.Extensions;
-using GSqlQuery.Runner.Extensions;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GSqlQuery
+namespace GSqlQuery.Runner
 {
-    public class JoinQuery<T, TDbConnection> : JoinQuery<T>, IExecute<IEnumerable<T>, TDbConnection>
+    public class JoinQuery<T, TDbConnection> : GSqlQuery.JoinQuery<T, ConnectionOptions<TDbConnection>>, IExecute<IEnumerable<T>, TDbConnection>, IQuery<T>, IQuery<T, ConnectionOptions<TDbConnection>>
         where T : class
     {
         public IDatabaseManagement<TDbConnection> DatabaseManagement { get; }
 
         internal JoinQuery(string text, IEnumerable<PropertyOptions> columns, IEnumerable<CriteriaDetail> criteria, ConnectionOptions<TDbConnection> connectionOptions)
-            : base(text, columns, criteria, connectionOptions.Formats)
+            : base(text, columns, criteria, connectionOptions)
         {
             DatabaseManagement = connectionOptions.DatabaseManagement;
         }
 
         public IEnumerable<T> Execute()
         {
-            return DatabaseManagement.ExecuteReader(this, GetClassOptions().PropertyOptions,
-                this.GetParameters<T, TDbConnection>(DatabaseManagement));
+            return DatabaseManagement.ExecuteReader(this, Columns,
+                GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement));
         }
 
         public IEnumerable<T> Execute(TDbConnection dbConnection)
         {
-            dbConnection.NullValidate(ErrorMessages.ParameterNotNull, nameof(dbConnection));
-            return DatabaseManagement.ExecuteReader(dbConnection, this, GetClassOptions().PropertyOptions,
-                this.GetParameters<T, TDbConnection>(DatabaseManagement));
+            if (dbConnection == null)
+            {
+                throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
+            }
+            return DatabaseManagement.ExecuteReader(dbConnection, this, Columns,
+                GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement));
         }
 
         public Task<IEnumerable<T>> ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            return DatabaseManagement.ExecuteReaderAsync(this, GetClassOptions().PropertyOptions,
-                this.GetParameters<T, TDbConnection>(DatabaseManagement), cancellationToken);
+            return DatabaseManagement.ExecuteReaderAsync(this, Columns,
+                GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement), cancellationToken);
         }
 
         public Task<IEnumerable<T>> ExecuteAsync(TDbConnection dbConnection, CancellationToken cancellationToken = default)
         {
-            dbConnection.NullValidate(ErrorMessages.ParameterNotNull, nameof(dbConnection));
-            return DatabaseManagement.ExecuteReaderAsync(dbConnection, this, GetClassOptions().PropertyOptions,
-                this.GetParameters<T, TDbConnection>(DatabaseManagement), cancellationToken);
+            if (dbConnection == null)
+            {
+                throw new ArgumentNullException(nameof(dbConnection), ErrorMessages.ParameterNotNull);
+            }
+            return DatabaseManagement.ExecuteReaderAsync(dbConnection, this, Columns,
+                GeneralExtension.GetParameters<T, TDbConnection>(this, DatabaseManagement), cancellationToken);
         }
     }
 }

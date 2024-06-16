@@ -6,35 +6,41 @@ using System.Threading.Tasks;
 
 namespace GSqlQuery.Runner
 {
-    public abstract class Transaction : ITransaction
+    public abstract class Transaction<TIConnection, TDbCommand, TDbTransaction, TDbConnection> : ITransaction<TIConnection, TDbTransaction>
+        where TIConnection : IConnection
+        where TDbTransaction : DbTransaction
+        where TDbCommand : DbCommand
+        where TDbConnection : DbConnection
     {
-        protected bool _disposed;
-        protected readonly DbTransaction _transaction;
-        protected readonly IConnection _connection;
+        protected readonly TDbTransaction _transaction;
+        protected readonly TIConnection _connection;
         protected TransacctionDispose _transacctionDispose;
 
         IConnection ITransaction.Connection => _connection;
 
-        DbTransaction ITransaction.Transaction => _transaction;
-
         public IsolationLevel IsolationLevel => _transaction.IsolationLevel;
 
+        TDbTransaction ITransaction<TIConnection, TDbTransaction>.Transaction => _transaction;
+
+        public TIConnection Connection => _connection;
+
+        object ITransaction.Transaction => _transaction;
 
         public delegate void TransacctionDispose(ITransaction transaction);
 
-        public Transaction(IConnection connection, DbTransaction transaction)
+        public Transaction(TIConnection connection, TDbTransaction transaction)
         {
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
             _transaction = transaction ?? throw new ArgumentNullException(nameof(transaction));
             _transacctionDispose += _connection.RemoveTransaction;
         }
 
-        public void Commit()
+        public virtual void Commit()
         {
             _transaction.Commit();
         }
 
-        public Task CommitAsync(CancellationToken cancellationToken = default)
+        public virtual Task CommitAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 #if NET5_0_OR_GREATER
@@ -45,12 +51,12 @@ namespace GSqlQuery.Runner
 #endif
         }
 
-        public void Rollback()
+        public virtual void Rollback()
         {
             _transaction.Rollback();
         }
 
-        public Task RollbackAsync(CancellationToken cancellationToken = default)
+        public virtual Task RollbackAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 #if NET5_0_OR_GREATER
@@ -59,14 +65,19 @@ namespace GSqlQuery.Runner
             _transaction.Rollback();
             return Task.CompletedTask;
 #endif
+        }
 
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         protected void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (disposing)
             {
-                if (disposing)
+                if (_transacctionDispose != null)
                 {
                     _transacctionDispose?.Invoke(this);
                     _transacctionDispose -= _connection.RemoveTransaction;
@@ -74,14 +85,7 @@ namespace GSqlQuery.Runner
                     _transaction?.Dispose();
 
                 }
-                _disposed = true;
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         ~Transaction()

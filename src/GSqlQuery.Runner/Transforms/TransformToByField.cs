@@ -3,34 +3,19 @@ using System.Data.Common;
 
 namespace GSqlQuery.Runner.Transforms
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal class TransformToByField<T> : TransformTo<T> where T : class
+    internal class TransformToByField<T, TDbDataReader>(int numColumns) : TransformTo<T, TDbDataReader>(numColumns)
+        where T : class
+        where TDbDataReader : DbDataReader
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="numColumns"></param>
-        public TransformToByField(int numColumns) : base(numColumns)
-        { }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public override T Generate(IEnumerable<PropertyOptionsInEntity> columns, DbDataReader reader)
+        public override T CreateEntity(IEnumerable<PropertyValue> propertyValues)
         {
             object result = _classOptions.ConstructorInfo.Invoke(null);
 
-            foreach (var item in columns)
+            foreach (PropertyValue item in propertyValues)
             {
-                var value = item.Ordinal.HasValue ? TransformTo.SwitchTypeValue(item.Type, reader.GetValue(item.Ordinal.Value)) : item.DefaultValue;
-
-                if (value != null)
+                if (item.Value != null)
                 {
-                    item.Property.PropertyInfo.SetValue(result, value);
+                    item.Property.PropertyInfo.SetValue(result, item.Value);
                 }
             }
 
