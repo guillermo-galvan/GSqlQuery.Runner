@@ -26,7 +26,7 @@ namespace GSqlQuery.Runner
 
         public abstract Task<TIConnection> GetConnectionAsync(CancellationToken cancellationToken = default);
 
-        internal static TDbCommand CreateCommand(TIConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
+        protected static TDbCommand CreateCommand(TIConnection connection, IQuery query, IEnumerable<IDataParameter> parameters)
         {
             TDbCommand command = connection.GetDbCommand();
             command.CommandText = query.Text;
